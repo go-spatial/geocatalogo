@@ -4,10 +4,13 @@ import (
     "os"
 
     "github.com/sirupsen/logrus"
-    "github.com/tomkralidis/go-geocat/config"
+    "github.com/tomkralidis/go-geocatalogue/config"
 )
 
-const Version = "0.1.0"
+const (
+    // go-geocatalogue version
+    VERSION = "0.1.0"
+)
 
 func main() {
     // get configuration
@@ -16,7 +19,7 @@ func main() {
     // setup logging
     log := initLog(cfg)
 
-    log.Info("Starting go-geocat server Version " + Version)
+    log.Info("Starting go-geocatalogue server Version " + VERSION)
     log.Info("Server URL: " + cfg.Server.Url)
     return
 }

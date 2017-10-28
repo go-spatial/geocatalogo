@@ -1,2 +1,2 @@
-# go-geocat
+# go-geocatalogue
 Geospatial Catalogue in Go
