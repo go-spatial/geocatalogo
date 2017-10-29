@@ -5,9 +5,10 @@ import (
     "io/ioutil"
 )
 
+// Config provides an object model for configuration.
 type Config struct {
     Server struct {
-        Url string
+        URL string
         MimeType string
         Encoding string
         Language string
@@ -29,7 +30,7 @@ type Config struct {
         }
         Provider struct {
             Name string
-            Url string
+            URL string
         }
         Contact struct {
             Name string
@@ -42,19 +43,19 @@ type Config struct {
             Phone string
             Fax string
             Email string
-            Url string
+            URL string
             Hours string
             Instructions string
             Role string
         }
         Repository struct {
             Type string
-            Url string
+            URL string
         }
     }
 }
 
-
+// GetConfig reads YAML configuration.
 func GetConfig(filename string) Config {
     var cfg Config
     source, err := ioutil.ReadFile(filename)

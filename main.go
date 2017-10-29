@@ -8,7 +8,7 @@ import (
 )
 
 const (
-    // go-geocatalogue version
+    // VERSION provides the go-geocatalogue version installed.
     VERSION = "0.1.0"
 )
 

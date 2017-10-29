@@ -1,0 +1,45 @@
+server:
+    url: http://localhost/go-geocatalogue
+    mimetype: application/xml; charset=UTF-8
+    encoding: utf-8
+    language: en-US
+    pretty_print: true
+    limit: 10
+
+logging:
+    level: DEBUG
+    logfile: /tmp/log.txt
+
+metadata:
+    identification:
+        title: my EO Catalogue
+        abstract: my abstract
+        keywords:
+            - foo
+            - bar
+            - baz
+        keywords_type: theme
+        fees: None
+        accessconstraints: None
+    provider:
+        name: Organization Name
+        url: https://github.com/tomkralidis/go-geocat
+    contact:
+        name: Lastname, Firstname
+        position: Position Title
+        address: Mailing Address
+        city: City
+        stateorprovince: Administrative Area
+        postalcode: Zip or Postal Code
+        country: Country
+        phone: +xx-xxx-xxx-xxxx
+        fax: +xx-xxx-xxx-xxxx
+        email: you@example.org
+        url: Contact URL
+        hours: Hours of Service
+        instructions: During hours of service.  Off on weekends.
+        role: pointOfContact
+
+repository:
+    type: sqlite
+    url: sqlite:///catalogue.db
