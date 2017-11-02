@@ -23,33 +23,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
-// Package geocatalogo
 package main
 
-import (
-    "os"
-
-    "github.com/tomkralidis/geocatalogo/config"
-    "github.com/tomkralidis/geocatalogo/repository"
-)
-
-// VERSION provides the geocatalogo version installed.
-const VERSION string = "0.1.0"
+import "fmt"
 
 func main() {
-    // get configuration
-    cfg := config.GetConfig(os.Getenv("GGC_CONFIG"))
-
-    // setup logging
-    log := InitLog(&cfg)
-
-    log.Info("geocatalogo Version " + VERSION)
-
-    // read backend
-    log.Info("Loading repository")
-    repo := repository.Open(cfg, &log)
-
-    log.Info("Repository loaded (type) " + repo.Type)
-    return
+    fmt.Println("hello world")
 }
+

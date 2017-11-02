@@ -23,29 +23,18 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-package repository
+
+// Package main - simple Wrapper
+package main
 
 import (
-    "github.com/sirupsen/logrus"
+    "fmt"
 
-    "github.com/tomkralidis/geocatalogo/config"
+    "github.com/tomkralidis/geocatalogo"
 )
 
-// Repository provides an object model for repository.
-type Repository struct {
-    Type string
-    URL string
-    Mappings map[string]string
-}
-
-func Open(cfg config.Config, log *logrus.Logger) Repository {
-    log.Debug("Loading Repository" + cfg.Repository.URL)
-    log.Debug("Type: " + cfg.Repository.Type)
-    log.Debug("URL: " + cfg.Repository.URL)
-    s := Repository{
-        Type: cfg.Repository.Type,
-        URL: cfg.Repository.URL,
-        Mappings: cfg.Repository.Mappings,
-    }
-    return s
+func main() {
+    mycatalogo := geocatalogo.New()
+    fmt.Println(mycatalogo.Config.Server.URL)
+    return
 }
