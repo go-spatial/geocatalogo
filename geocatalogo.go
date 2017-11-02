@@ -25,7 +25,7 @@
 
 
 // Package geocatalogo
-package main
+package geocatalogo
 
 import (
     "os"
@@ -37,14 +37,15 @@ import (
 // VERSION provides the geocatalogo version installed.
 const VERSION string = "0.1.0"
 
-func main() {
+func New() {
     // get configuration
-    cfg := config.GetConfig(os.Getenv("GGC_CONFIG"))
+    cfg := config.GetConfig(os.Getenv("GEOCATALOGO_CONFIG"))
 
     // setup logging
     log := InitLog(&cfg)
 
     log.Info("geocatalogo Version " + VERSION)
+    log.Info("Configuration: " + os.Getenv("GEOCATALOGO_CONFIG"))
 
     // read backend
     log.Info("Loading repository")

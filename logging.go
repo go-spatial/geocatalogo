@@ -25,31 +25,34 @@
 
 
 // Package geocatalogo
-package main
+package geocatalogo
 
 import (
     "os"
 
+    "github.com/sirupsen/logrus"
     "github.com/tomkralidis/geocatalogo/config"
-    "github.com/tomkralidis/geocatalogo/repository"
 )
 
-// VERSION provides the geocatalogo version installed.
-const VERSION string = "0.1.0"
+func InitLog(cfg *config.Config) logrus.Logger {
+    log := logrus.Logger{
+        Out: os.Stderr,
+        Formatter: new(logrus.TextFormatter),
+        Hooks: make(logrus.LevelHooks),
+        Level: logrus.DebugLevel,
+    }
 
-func main() {
-    // get configuration
-    cfg := config.GetConfig(os.Getenv("GGC_CONFIG"))
-
-    // setup logging
-    log := InitLog(&cfg)
-
-    log.Info("geocatalogo Version " + VERSION)
-
-    // read backend
-    log.Info("Loading repository")
-    repo := repository.Open(cfg, &log)
-
-    log.Info("Repository loaded (type) " + repo.Type)
-    return
+    if cfg.Logging.Level == "DEBUG" {
+        log.SetLevel(logrus.DebugLevel)
+    } else if cfg.Logging.Level == "INFO" {
+        log.SetLevel(logrus.InfoLevel)
+    } else if cfg.Logging.Level == "WARN" {
+        log.SetLevel(logrus.WarnLevel)
+    } else if cfg.Logging.Level == "ERROR" {
+        log.SetLevel(logrus.ErrorLevel)
+    } else if cfg.Logging.Level == "FATAL" {
+        log.SetLevel(logrus.FatalLevel)
+    }
+ 
+    return log
 }

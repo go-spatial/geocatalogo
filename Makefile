@@ -23,53 +23,17 @@
 #
 ##############################################################################
 
-server:
-    url: http://localhost/geocatalogo
-    mimetype: application/xml; charset=UTF-8
-    encoding: utf-8
-    language: en-US
-    pretty_print: true
-    limit: 10
+BIN=$(GOPATH)/bin
 
-logging:
-    level: DEBUG
-    logfile: /tmp/log.txt
 
-metadata:
-    identification:
-        title: my EO Catalogue
-        abstract: my abstract
-        keywords:
-            - foo
-            - bar
-            - baz
-        keywords_type: theme
-        fees: None
-        accessconstraints: None
-    provider:
-        name: Organization Name
-        url: https://github.com/tomkralidis/geocatalogo
-    contact:
-        name: Lastname, Firstname
-        position: Position Title
-        address: Mailing Address
-        city: City
-        stateorprovince: Administrative Area
-        postalcode: Zip or Postal Code
-        country: Country
-        phone: +xx-xxx-xxx-xxxx
-        fax: +xx-xxx-xxx-xxxx
-        email: you@example.org
-        url: Contact URL
-        hours: Hours of Service
-        instructions: During hours of service.  Off on weekends.
-        role: pointOfContact
+build: $(BIN)/geocatalogo-importer
+	
+install:
+	go install github.com/tomkralidis/geocatalogo
 
-repository:
-    type: bleve
-    url: ./metadata.bleve
-    mappings:
-        identifier: identifier
-        title : title
-        abstract: abstract
-        geometry: bbox
+$(BIN)/geocatalogo-importer: importer/main.go
+	go build -o $@ github.com/tomkralidis/geocatalogo/importer
+
+clean:
+	rm -f $(BIN)/geocatalogo
+	rm -f $(BIN)/geocatalogo-importer

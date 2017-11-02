@@ -23,33 +23,28 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
-// Package geocatalogo
-package main
+package repository
 
 import (
-    "os"
-
     "github.com/tomkralidis/geocatalogo/config"
-    "github.com/tomkralidis/geocatalogo/repository"
+    "github.com/sirupsen/logrus"
 )
 
-// VERSION provides the geocatalogo version installed.
-const VERSION string = "0.1.0"
+// Repository provides an object model for repository.
+type Repository struct {
+    Type string
+    URL string
+    Mappings map[string]string
+}
 
-func main() {
-    // get configuration
-    cfg := config.GetConfig(os.Getenv("GGC_CONFIG"))
-
-    // setup logging
-    log := InitLog(&cfg)
-
-    log.Info("geocatalogo Version " + VERSION)
-
-    // read backend
-    log.Info("Loading repository")
-    repo := repository.Open(cfg, &log)
-
-    log.Info("Repository loaded (type) " + repo.Type)
-    return
+func Open(cfg config.Config, log *logrus.Logger) Repository {
+    log.Debug("Loading Repository" + cfg.Repository.URL)
+    log.Debug("Type: " + cfg.Repository.Type)
+    log.Debug("URL: " + cfg.Repository.URL)
+    s := Repository{
+        Type: cfg.Repository.Type,
+        URL: cfg.Repository.URL,
+        Mappings: cfg.Repository.Mappings,
+    }
+    return s
 }
