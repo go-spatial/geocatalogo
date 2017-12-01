@@ -28,6 +28,7 @@
 package geocatalogo
 
 import (
+    "fmt"
     "os"
 
     "github.com/sirupsen/logrus"
@@ -40,28 +41,58 @@ import (
 const VERSION string = "0.1.0"
 
 
-type Catalogue struct {
+type GeoCatalogue struct {
+    Version string
     Config config.Config
     Log logrus.Logger
     Repository repository.Repository
 }
 
-func New() Catalogue {
-    // get configuration
+func New() GeoCatalogue {
+    // detect and load configuration
 
-    c := Catalogue{}
-    c.Config = config.GetConfig(os.Getenv("GEOCATALOGO_CONFIG"))
+    configFile, exists := os.LookupEnv("GEOCATALOGO_CONFIG")
+    if !exists {
+        fmt.Println("ERROR: GEOCATALOGO_CONFIG environment variable not set")
+        os.Exit(1)
+    }
+
+    c := GeoCatalogue{}
+    c.Version = VERSION
+    c.Config = config.LoadFromFile(configFile)
 
     // setup logging
     c.Log = InitLog(&c.Config)
 
-    c.Log.Info("geocatalogo Version " + VERSION)
+    c.Log.Info("geocatalogo Version " + c.Version)
     c.Log.Info("Configuration: " + os.Getenv("GEOCATALOGO_CONFIG"))
 
-    // read backend
     c.Log.Info("Loading repository")
     c.Repository = repository.Open(c.Config, &c.Log)
 
-    c.Log.Info("Repository loaded (type) " + c.Repository.Type)
     return c
+}
+
+func (c *GeoCatalogue) Insert() bool {
+    return c.Repository.Insert()
+}
+
+func (c *GeoCatalogue) Update() bool {
+    return c.Repository.Update()
+}
+
+func (c *GeoCatalogue) Delete() bool {
+    return c.Repository.Delete()
+}
+
+func (c *GeoCatalogue) Search() bool {
+    return c.Repository.Query()
+}
+
+func (c *GeoCatalogue) Get() bool {
+    return c.Repository.Get()
+}
+
+func (c *GeoCatalogue) Present() bool {
+    return c.Repository.Get()
 }

@@ -27,7 +27,6 @@ package repository
 
 import (
     "github.com/sirupsen/logrus"
-
     "github.com/tomkralidis/geocatalogo/config"
 )
 
@@ -48,4 +47,24 @@ func Open(cfg config.Config, log *logrus.Logger) Repository {
         Mappings: cfg.Repository.Mappings,
     }
     return s
+}
+
+func (r *Repository) Insert() bool {
+    return true
+}
+
+func (r *Repository) Update() bool {
+    return true
+}
+
+func (r *Repository) Delete() bool {
+    return true
+}
+
+func (r *Repository) Query() bool {
+    return true
+}
+
+func (r *Repository) Get() bool {
+    return true
 }
