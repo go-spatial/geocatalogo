@@ -28,12 +28,66 @@ package main
 
 import (
     "fmt"
+    "io/ioutil"
+    "os"
+
+    "flag"
 
     "github.com/tomkralidis/geocatalogo"
+    "github.com/tomkralidis/geocatalogo/metadata/parsers"
 )
 
 func main() {
+
+    if len(os.Args) == 1 {
+        fmt.Printf("Usage: %s <command> [<args>]\n", os.Args[0])
+        fmt.Println("Commands: ")
+        fmt.Println(" index: add a metadata record to the index")
+        fmt.Println(" search: search the index")
+        return
+    }
+
     mycatalogo := geocatalogo.New()
     fmt.Println("geocatalogo version: " + mycatalogo.Version)
+
+    insertCommand := flag.NewFlagSet("insert", flag.ExitOnError)
+    fileFlag := insertCommand.String("file", "", "Path to metadata file")
+
+    searchCommand := flag.NewFlagSet("search", flag.ExitOnError)
+    termFlag := searchCommand.String("term", "", "Search term(s)")
+
+    switch os.Args[1] {
+        case "insert":
+            insertCommand.Parse(os.Args[2:])
+        case "search":
+            searchCommand.Parse(os.Args[2:])
+        default:
+            fmt.Printf("%q is not valid command.\n", os.Args[1])
+            os.Exit(2)
+    }
+
+    if insertCommand.Parsed() {
+        if *fileFlag == "" {
+            fmt.Println("Please supply path to metadata file")
+            return
+        }
+        fmt.Printf("Indexing: %q\n", *fileFlag)
+        source, err := ioutil.ReadFile(*fileFlag)
+        if err != nil {
+            panic(err)
+        }
+        metadataRecord, err := parsers.ParseCSWRecord(source)
+        result := mycatalogo.Index(metadataRecord)
+        if result == true {
+            fmt.Println(result)
+        }
+    } else if searchCommand.Parsed() {
+        if *termFlag == "" {
+            fmt.Println("Please supply path to metadata file")
+            return
+        }
+        results := mycatalogo.Search(*termFlag)
+        fmt.Println(results)
+    }
     return
 }
