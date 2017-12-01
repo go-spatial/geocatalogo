@@ -26,17 +26,13 @@
 BIN=$(GOPATH)/bin
 
 
-build: geocatalogo geocatalogo-importer install
+build: geocatalogo install
 	
 install:
 	go install github.com/tomkralidis/geocatalogo
-
-geocatalogo-importer:
-	go build -o $(BIN)/$@ github.com/tomkralidis/geocatalogo/cmd/geocatalogo/importer
 
 geocatalogo:
 	go build -o $(BIN)/$@ github.com/tomkralidis/geocatalogo/cmd/geocatalogo
 
 clean:
 	rm -f $(BIN)/geocatalogo
-	rm -f $(BIN)/geocatalogo-importer

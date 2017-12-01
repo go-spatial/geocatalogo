@@ -44,29 +44,38 @@ func main() {
         fmt.Println("Commands: ")
         fmt.Println(" index: add a metadata record to the index")
         fmt.Println(" search: search the index")
+        fmt.Println(" version: geocatalogo version")
         return
     }
 
-    mycatalogo := geocatalogo.New()
-    fmt.Println("geocatalogo version: " + mycatalogo.Version)
-
-    insertCommand := flag.NewFlagSet("insert", flag.ExitOnError)
-    fileFlag := insertCommand.String("file", "", "Path to metadata file")
+    indexCommand := flag.NewFlagSet("index", flag.ExitOnError)
+    fileFlag := indexCommand.String("file", "", "Path to metadata file")
 
     searchCommand := flag.NewFlagSet("search", flag.ExitOnError)
     termFlag := searchCommand.String("term", "", "Search term(s)")
 
+    versionCommand := flag.NewFlagSet("version", flag.ExitOnError)
+
     switch os.Args[1] {
-        case "insert":
-            insertCommand.Parse(os.Args[2:])
+        case "index":
+            indexCommand.Parse(os.Args[2:])
         case "search":
             searchCommand.Parse(os.Args[2:])
+        case "version":
+            versionCommand.Parse(os.Args[2:])
         default:
             fmt.Printf("%q is not valid command.\n", os.Args[1])
             os.Exit(2)
     }
 
-    if insertCommand.Parsed() {
+    mycatalogo := geocatalogo.New()
+
+    if versionCommand.Parsed() {
+        fmt.Println("geocatalogo version " + mycatalogo.Version)
+        return
+    }
+
+    if indexCommand.Parsed() {
         if *fileFlag == "" {
             fmt.Println("Please supply path to metadata file")
             return

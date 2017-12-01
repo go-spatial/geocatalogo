@@ -72,9 +72,9 @@ func Open(cfg config.Config, log *logrus.Logger) Repository {
     return s
 }
 
-func (r *Repository) Insert(record metadata.Record) bool {
-    r.Index.Index(record.Identifier, record)
-    return true
+func (r *Repository) Insert(record metadata.Record) error {
+    err := r.Index.Index(record.Identifier, record)
+    return err
 }
 
 func (r *Repository) Update() bool {

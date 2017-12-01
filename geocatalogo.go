@@ -51,7 +51,6 @@ type GeoCatalogue struct {
 
 func New() GeoCatalogue {
     // detect and load configuration
-
     configFile, exists := os.LookupEnv("GEOCATALOGO_CONFIG")
     if !exists {
         fmt.Println("ERROR: GEOCATALOGO_CONFIG environment variable not set")
@@ -76,7 +75,12 @@ func New() GeoCatalogue {
 
 func (c *GeoCatalogue) Index(record metadata.Record) bool {
     c.Log.Info("Indexing " + record.Identifier)
-    return c.Repository.Insert(record)
+    err := c.Repository.Insert(record)
+    if err != nil {
+        c.Log.Error("Indexing failed: %v", err)
+        return false
+    }
+    return true
 }
 
 func (c *GeoCatalogue) UnIndex() bool {
