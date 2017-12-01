@@ -67,7 +67,7 @@ metadata:
 
 repository:
     type: bleve
-    url: ./metadata.bleve
+    url: ./metadata-index.bleve
     mappings:
         identifier: identifier
         type: type
