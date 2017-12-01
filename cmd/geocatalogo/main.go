@@ -23,7 +23,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
 // Package main - simple Wrapper
 package main
 
@@ -35,6 +34,6 @@ import (
 
 func main() {
     mycatalogo := geocatalogo.New()
-    fmt.Println(mycatalogo.Config.Server.URL)
+    fmt.Println("geocatalogo version: " + mycatalogo.Version)
     return
 }
