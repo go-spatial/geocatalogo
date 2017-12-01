@@ -81,8 +81,8 @@ type Config struct {
     }
 }
 
-// GetConfig reads YAML configuration.
-func GetConfig(filename string) Config {
+// Get reads YAML configuration.
+func LoadFromFile(filename string) Config {
     var cfg Config
     source, err := ioutil.ReadFile(filename)
     if err != nil {

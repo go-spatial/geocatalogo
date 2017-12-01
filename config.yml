@@ -32,17 +32,17 @@ server:
     limit: 10
 
 logging:
-    level: DEBUG
-    logfile: /tmp/log.txt
+    level: NONE
+    logfile: /tmp/geocatalogo.log
 
 metadata:
     identification:
-        title: my EO Catalogue
-        abstract: my abstract
+        title: geocatalogo
+        abstract: Geospatial Catalogue in Go
         keywords:
-            - foo
-            - bar
-            - baz
+            - geospatial
+            - metadata
+            - discovery
         keywords_type: theme
         fees: None
         accessconstraints: None
@@ -70,6 +70,9 @@ repository:
     url: ./metadata.bleve
     mappings:
         identifier: identifier
+        type: type
+        last_modified: last_modified
         title : title
         abstract: abstract
+        keywords: keywords
         geometry: bbox
