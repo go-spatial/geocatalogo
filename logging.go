@@ -35,11 +35,20 @@ import (
 )
 
 func InitLog(cfg *config.Config) logrus.Logger {
-    log := logrus.Logger{
-        Out: os.Stderr,
-        Formatter: new(logrus.TextFormatter),
-        Hooks: make(logrus.LevelHooks),
-        Level: logrus.DebugLevel,
+    var log = *logrus.New()
+
+    // set defaults
+    log.Level = logrus.PanicLevel
+    log.Out =  os.Stderr
+    log.Formatter = new(logrus.TextFormatter)
+    log.Hooks = make(logrus.LevelHooks)
+
+    if cfg.Logging.Logfile != "" {
+        f, err := os.OpenFile(cfg.Logging.Logfile, os.O_WRONLY | os.O_CREATE, 0644)
+        if err != nil {
+            panic(err)
+        }
+        log.Out = f
     }
 
     if cfg.Logging.Level == "DEBUG" {
