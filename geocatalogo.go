@@ -34,6 +34,7 @@ import (
     "github.com/sirupsen/logrus"
 
     "github.com/tomkralidis/geocatalogo/config"
+    "github.com/tomkralidis/geocatalogo/metadata"
     "github.com/tomkralidis/geocatalogo/repository"
 )
 
@@ -73,26 +74,25 @@ func New() GeoCatalogue {
     return c
 }
 
-func (c *GeoCatalogue) Insert() bool {
-    return c.Repository.Insert()
+func (c *GeoCatalogue) Index(record metadata.Record) bool {
+    c.Log.Info("Indexing " + record.Identifier)
+    return c.Repository.Insert(record)
 }
 
-func (c *GeoCatalogue) Update() bool {
-    return c.Repository.Update()
-}
-
-func (c *GeoCatalogue) Delete() bool {
+func (c *GeoCatalogue) UnIndex() bool {
     return c.Repository.Delete()
 }
 
-func (c *GeoCatalogue) Search() bool {
-    return c.Repository.Query()
+func (c *GeoCatalogue) Search(term string) bool {
+    c.Log.Info("Searching index")
+    searchResult, err := c.Repository.Query(term)
+    if err != nil {
+        return false
+    }
+    fmt.Println(searchResult)
+    return true
 }
 
 func (c *GeoCatalogue) Get() bool {
-    return c.Repository.Get()
-}
-
-func (c *GeoCatalogue) Present() bool {
     return c.Repository.Get()
 }

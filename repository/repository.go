@@ -26,8 +26,13 @@
 package repository
 
 import (
+    "os"
+
     "github.com/sirupsen/logrus"
+    "github.com/blevesearch/bleve"
+
     "github.com/tomkralidis/geocatalogo/config"
+    "github.com/tomkralidis/geocatalogo/metadata"
 )
 
 // Repository provides an object model for repository.
@@ -35,6 +40,7 @@ type Repository struct {
     Type string
     URL string
     Mappings map[string]string
+    Index bleve.Index
 }
 
 func Open(cfg config.Config, log *logrus.Logger) Repository {
@@ -46,10 +52,28 @@ func Open(cfg config.Config, log *logrus.Logger) Repository {
         URL: cfg.Repository.URL,
         Mappings: cfg.Repository.Mappings,
     }
+
+    mapping := bleve.NewIndexMapping()
+
+    if _, err := os.Stat(cfg.Repository.URL); !os.IsNotExist(err) {
+        index, err := bleve.Open(cfg.Repository.URL)
+        if err != nil {
+            panic(err)
+        }
+        s.Index = index
+    } else {
+        index, err := bleve.New(cfg.Repository.URL, mapping)
+        if err != nil {
+            panic(err)
+        }
+        s.Index = index
+    }
+
     return s
 }
 
-func (r *Repository) Insert() bool {
+func (r *Repository) Insert(record metadata.Record) bool {
+    r.Index.Index(record.Identifier, record)
     return true
 }
 
@@ -61,8 +85,14 @@ func (r *Repository) Delete() bool {
     return true
 }
 
-func (r *Repository) Query() bool {
-    return true
+func (r *Repository) Query(term string) (sr *bleve.SearchResult, err error) {
+    query := bleve.NewMatchQuery(term)
+    searchRequest := bleve.NewSearchRequest(query)
+    searchResult, err := r.Index.Search(searchRequest)
+    if err != nil {
+        return searchResult, err
+    }
+    return searchResult, nil
 }
 
 func (r *Repository) Get() bool {

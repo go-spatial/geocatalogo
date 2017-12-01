@@ -3,7 +3,6 @@ package parsers
 import (
   "bytes"
   "encoding/xml"
-  "fmt"
   "strconv"
   "strings"
 
@@ -77,7 +76,6 @@ func ParseCSWRecord(xmlBuffer []byte) (metadata.Record, error) {
     err := decoder.Decode(&cswRecord)
 
     if err != nil {
-        fmt.Println("decoder error:", err)
         return metadataRecord, err
     }
 
