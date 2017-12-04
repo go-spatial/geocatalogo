@@ -43,28 +43,20 @@ const VERSION string = "0.1.0"
 
 
 type GeoCatalogue struct {
-    Version string
     Config config.Config
     Log logrus.Logger
     Repository repository.Repository
 }
 
 func New() GeoCatalogue {
-    // detect and load configuration
-    configFile, exists := os.LookupEnv("GEOCATALOGO_CONFIG")
-    if !exists {
-        fmt.Println("ERROR: GEOCATALOGO_CONFIG environment variable not set")
-        os.Exit(1)
-    }
 
     c := GeoCatalogue{}
-    c.Version = VERSION
-    c.Config = config.LoadFromFile(configFile)
+    c.Config = config.LoadFromEnv()
 
     // setup logging
     c.Log = InitLog(&c.Config)
 
-    c.Log.Info("geocatalogo Version " + c.Version)
+    c.Log.Info("geocatalogo version " + VERSION)
     c.Log.Info("Configuration: " + os.Getenv("GEOCATALOGO_CONFIG"))
 
     c.Log.Info("Loading repository")
@@ -77,7 +69,7 @@ func (c *GeoCatalogue) Index(record metadata.Record) bool {
     c.Log.Info("Indexing " + record.Identifier)
     err := c.Repository.Insert(record)
     if err != nil {
-        c.Log.Error("Indexing failed: %v", err)
+        c.Log.Errorf("Indexing failed: %v", err)
         return false
     }
     return true

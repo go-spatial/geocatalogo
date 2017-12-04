@@ -32,8 +32,8 @@ server:
     limit: 10
 
 logging:
-    level: NONE
-    logfile: /tmp/geocatalogo.log
+    level: INFO
+    #logfile: /tmp/geocatalogo.log
 
 metadata:
     identification:

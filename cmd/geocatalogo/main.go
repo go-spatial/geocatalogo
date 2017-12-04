@@ -50,9 +50,11 @@ func main() {
 
     indexCommand := flag.NewFlagSet("index", flag.ExitOnError)
     fileFlag := indexCommand.String("file", "", "Path to metadata file")
+    //indexVerboseFlag := indexCommand.Bool("verbose", false, "This is a bool flag")
 
     searchCommand := flag.NewFlagSet("search", flag.ExitOnError)
     termFlag := searchCommand.String("term", "", "Search term(s)")
+    //searchVerboseFlag := searchCommand.Bool("verbose", false, "This is a bool flag")
 
     versionCommand := flag.NewFlagSet("version", flag.ExitOnError)
 
@@ -68,17 +70,17 @@ func main() {
             os.Exit(2)
     }
 
-    mycatalogo := geocatalogo.New()
-
     if versionCommand.Parsed() {
-        fmt.Println("geocatalogo version " + mycatalogo.Version)
+        fmt.Println("geocatalogo version " + geocatalogo.VERSION)
         return
     }
+
+    mycatalogo := geocatalogo.New()
 
     if indexCommand.Parsed() {
         if *fileFlag == "" {
             fmt.Println("Please supply path to metadata file")
-            return
+            os.Exit(3)
         }
         fmt.Printf("Indexing: %q\n", *fileFlag)
         source, err := ioutil.ReadFile(*fileFlag)
@@ -87,13 +89,13 @@ func main() {
         }
         metadataRecord, err := parsers.ParseCSWRecord(source)
         result := mycatalogo.Index(metadataRecord)
-        if result == true {
+        if result {
             fmt.Println(result)
         }
     } else if searchCommand.Parsed() {
         if *termFlag == "" {
-            fmt.Println("Please supply path to metadata file")
-            return
+            fmt.Println("Please provide search term")
+            os.Exit(4)
         }
         results := mycatalogo.Search(*termFlag)
         fmt.Println(results)
