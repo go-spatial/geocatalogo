@@ -26,7 +26,8 @@
 package repository
 
 import (
-    "os"
+    "fmt"
+    "encoding/json"
 
     "github.com/sirupsen/logrus"
     "github.com/blevesearch/bleve"
@@ -53,19 +54,16 @@ func Open(cfg config.Config, log *logrus.Logger) Repository {
         Mappings: cfg.Repository.Mappings,
     }
 
-    mapping := bleve.NewIndexMapping()
+    index, err := bleve.Open(cfg.Repository.URL)
 
-    if _, err := os.Stat(cfg.Repository.URL); !os.IsNotExist(err) {
-        index, err := bleve.Open(cfg.Repository.URL)
+    if err == bleve.ErrorIndexPathDoesNotExist {
+        mapping := bleve.NewIndexMapping()
+        index, err := bleve.New(cfg.Repository.URL, mapping)
         if err != nil {
             panic(err)
         }
         s.Index = index
     } else {
-        index, err := bleve.New(cfg.Repository.URL, mapping)
-        if err != nil {
-            panic(err)
-        }
         s.Index = index
     }
 
@@ -88,9 +86,19 @@ func (r *Repository) Delete() bool {
 func (r *Repository) Query(term string) (sr *bleve.SearchResult, err error) {
     query := bleve.NewMatchQuery(term)
     searchRequest := bleve.NewSearchRequest(query)
+    searchRequest.Fields = []string{"*"}
     searchResult, err := r.Index.Search(searchRequest)
     if err != nil {
         return searchResult, err
+    }
+    for _, rec := range searchResult.Hits {
+        bytes, _ := json.Marshal(metadata.Record{
+            Identifier: fmt.Sprintf("%v", rec.Fields["Identifier"]),
+            Type: fmt.Sprintf("%v", rec.Fields["Type"]),
+            Title: fmt.Sprintf("%v", rec.Fields["Title"]),
+            Abstract: fmt.Sprintf("%v", rec.Fields["Abstract"]),
+        })
+        fmt.Printf(string(bytes))
     }
     return searchResult, nil
 }

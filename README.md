@@ -13,8 +13,8 @@ Geospatial Catalogue in Go
 # install geocatalogo
 go get github.com/tomkralidis/geocatalogo/...
 # set configuration
-# (sample in $GOPATH/src/github.com/tomkralidis/geocatalogo/geocatalogo-config.yml)
-export GEOCATALOGO_CONFIG=/path/to/geocatalogo-config.yml
+# (sample in $GOPATH/src/github.com/tomkralidis/geocatalogo/default.env)
+. default.env
 ```
 
 ## Running

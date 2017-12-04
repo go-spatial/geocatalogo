@@ -34,6 +34,15 @@ import (
     "github.com/tomkralidis/geocatalogo/config"
 )
 
+var LogLevels = map[string]logrus.Level {
+    "DEBUG": logrus.DebugLevel,
+    "INFO": logrus.InfoLevel,
+    "WARN": logrus.WarnLevel,
+    "ERROR": logrus.ErrorLevel,
+    "FATAL": logrus.FatalLevel,
+    "NONE": logrus.PanicLevel,
+}
+
 func InitLog(cfg *config.Config) logrus.Logger {
     var log = *logrus.New()
 
@@ -43,6 +52,7 @@ func InitLog(cfg *config.Config) logrus.Logger {
     log.Formatter = new(logrus.TextFormatter)
     log.Hooks = make(logrus.LevelHooks)
 
+    // set to optionally write to logfile
     if cfg.Logging.Logfile != "" {
         f, err := os.OpenFile(cfg.Logging.Logfile, os.O_WRONLY | os.O_CREATE, 0644)
         if err != nil {
@@ -51,17 +61,8 @@ func InitLog(cfg *config.Config) logrus.Logger {
         log.Out = f
     }
 
-    if cfg.Logging.Level == "DEBUG" {
-        log.SetLevel(logrus.DebugLevel)
-    } else if cfg.Logging.Level == "INFO" {
-        log.SetLevel(logrus.InfoLevel)
-    } else if cfg.Logging.Level == "WARN" {
-        log.SetLevel(logrus.WarnLevel)
-    } else if cfg.Logging.Level == "ERROR" {
-        log.SetLevel(logrus.ErrorLevel)
-    } else if cfg.Logging.Level == "FATAL" {
-        log.SetLevel(logrus.FatalLevel)
-    }
- 
+    // set debug level
+    log.SetLevel(LogLevels[cfg.Logging.Level])
+
     return log
 }
