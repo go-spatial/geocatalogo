@@ -44,9 +44,29 @@ type Repository struct {
 	Index    bleve.Index
 }
 
+// New creates a repository
+func New(cfg config.Config, log *logrus.Logger) Repository {
+	log.Debug("Creating Repository" + cfg.Repository.URL)
+	log.Debug("Type: " + cfg.Repository.Type)
+	log.Debug("URL: " + cfg.Repository.URL)
+	s := Repository{
+		Type:     cfg.Repository.Type,
+		URL:      cfg.Repository.URL,
+		Mappings: cfg.Repository.Mappings,
+	}
+
+	mapping := bleve.NewIndexMapping()
+	index, err := bleve.New(cfg.Repository.URL, mapping)
+	if err != nil {
+		panic(err)
+	}
+	s.Index = index
+
+	return s
+}
+
 // Open loads a repository
 func Open(cfg config.Config, log *logrus.Logger) Repository {
-	log.Info("TOMK")
 	log.Debug("Loading Repository" + cfg.Repository.URL)
 	log.Debug("Type: " + cfg.Repository.Type)
 	log.Debug("URL: " + cfg.Repository.URL)
@@ -58,16 +78,10 @@ func Open(cfg config.Config, log *logrus.Logger) Repository {
 
 	index, err := bleve.Open(cfg.Repository.URL)
 
-	if err == bleve.ErrorIndexPathDoesNotExist {
-		mapping := bleve.NewIndexMapping()
-		index, err := bleve.New(cfg.Repository.URL, mapping)
-		if err != nil {
-			panic(err)
-		}
-		s.Index = index
-	} else {
-		s.Index = index
+	if err != nil {
+		panic(err)
 	}
+	s.Index = index
 
 	return s
 }
