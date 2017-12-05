@@ -26,13 +26,22 @@
 BIN=$(GOPATH)/bin
 
 
-build: geocatalogo install
-	
-install:
-	go install github.com/tomkralidis/geocatalogo
-
-geocatalogo:
-	go build -o $(BIN)/$@ github.com/tomkralidis/geocatalogo/cmd/geocatalogo
+build:
+	go build ./...
 
 clean:
-	rm -f $(BIN)/geocatalogo
+	go clean -x -i
+
+format:
+	gofmt -s -l -w .
+
+install:
+	go install ./...
+
+test:
+	go test ./... -v
+
+vet:
+	go vet
+
+.PHONY: build clean format install test vet
