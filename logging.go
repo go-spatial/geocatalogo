@@ -23,46 +23,45 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
 // Package geocatalogo
 package geocatalogo
 
 import (
-    "os"
+	"os"
 
-    "github.com/sirupsen/logrus"
-    "github.com/tomkralidis/geocatalogo/config"
+	"github.com/sirupsen/logrus"
+	"github.com/tomkralidis/geocatalogo/config"
 )
 
-var LogLevels = map[string]logrus.Level {
-    "DEBUG": logrus.DebugLevel,
-    "INFO": logrus.InfoLevel,
-    "WARN": logrus.WarnLevel,
-    "ERROR": logrus.ErrorLevel,
-    "FATAL": logrus.FatalLevel,
-    "NONE": logrus.PanicLevel,
+var LogLevels = map[string]logrus.Level{
+	"DEBUG": logrus.DebugLevel,
+	"INFO":  logrus.InfoLevel,
+	"WARN":  logrus.WarnLevel,
+	"ERROR": logrus.ErrorLevel,
+	"FATAL": logrus.FatalLevel,
+	"NONE":  logrus.PanicLevel,
 }
 
 func InitLog(cfg *config.Config) logrus.Logger {
-    var log = *logrus.New()
+	var log = *logrus.New()
 
-    // set defaults
-    log.Level = logrus.PanicLevel
-    log.Out =  os.Stderr
-    log.Formatter = new(logrus.TextFormatter)
-    log.Hooks = make(logrus.LevelHooks)
+	// set defaults
+	log.Level = logrus.PanicLevel
+	log.Out = os.Stderr
+	log.Formatter = new(logrus.TextFormatter)
+	log.Hooks = make(logrus.LevelHooks)
 
-    // set to optionally write to logfile
-    if cfg.Logging.Logfile != "" {
-        f, err := os.OpenFile(cfg.Logging.Logfile, os.O_WRONLY | os.O_CREATE, 0644)
-        if err != nil {
-            panic(err)
-        }
-        log.Out = f
-    }
+	// set to optionally write to logfile
+	if cfg.Logging.Logfile != "" {
+		f, err := os.OpenFile(cfg.Logging.Logfile, os.O_WRONLY|os.O_CREATE, 0644)
+		if err != nil {
+			panic(err)
+		}
+		log.Out = f
+	}
 
-    // set debug level
-    log.SetLevel(LogLevels[cfg.Logging.Level])
+	// set debug level
+	log.SetLevel(LogLevels[cfg.Logging.Level])
 
-    return log
+	return log
 }

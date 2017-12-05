@@ -23,72 +23,70 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
 // Package geocatalogo
 package geocatalogo
 
 import (
-    "fmt"
-    "os"
+	"fmt"
+	"os"
 
-    "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 
-    "github.com/tomkralidis/geocatalogo/config"
-    "github.com/tomkralidis/geocatalogo/metadata"
-    "github.com/tomkralidis/geocatalogo/repository"
+	"github.com/tomkralidis/geocatalogo/config"
+	"github.com/tomkralidis/geocatalogo/metadata"
+	"github.com/tomkralidis/geocatalogo/repository"
 )
 
 // VERSION provides the geocatalogo version installed.
 const VERSION string = "0.1.0"
 
-
 type GeoCatalogue struct {
-    Config config.Config
-    Log logrus.Logger
-    Repository repository.Repository
+	Config     config.Config
+	Log        logrus.Logger
+	Repository repository.Repository
 }
 
 func New() GeoCatalogue {
 
-    c := GeoCatalogue{}
-    c.Config = config.LoadFromEnv()
+	c := GeoCatalogue{}
+	c.Config = config.LoadFromEnv()
 
-    // setup logging
-    c.Log = InitLog(&c.Config)
+	// setup logging
+	c.Log = InitLog(&c.Config)
 
-    c.Log.Info("geocatalogo version " + VERSION)
-    c.Log.Info("Configuration: " + os.Getenv("GEOCATALOGO_CONFIG"))
+	c.Log.Info("geocatalogo version " + VERSION)
+	c.Log.Info("Configuration: " + os.Getenv("GEOCATALOGO_CONFIG"))
 
-    c.Log.Info("Loading repository")
-    c.Repository = repository.Open(c.Config, &c.Log)
+	c.Log.Info("Loading repository")
+	c.Repository = repository.Open(c.Config, &c.Log)
 
-    return c
+	return c
 }
 
 func (c *GeoCatalogue) Index(record metadata.Record) bool {
-    c.Log.Info("Indexing " + record.Identifier)
-    err := c.Repository.Insert(record)
-    if err != nil {
-        c.Log.Errorf("Indexing failed: %v", err)
-        return false
-    }
-    return true
+	c.Log.Info("Indexing " + record.Identifier)
+	err := c.Repository.Insert(record)
+	if err != nil {
+		c.Log.Errorf("Indexing failed: %v", err)
+		return false
+	}
+	return true
 }
 
 func (c *GeoCatalogue) UnIndex() bool {
-    return c.Repository.Delete()
+	return c.Repository.Delete()
 }
 
 func (c *GeoCatalogue) Search(term string) bool {
-    c.Log.Info("Searching index")
-    searchResult, err := c.Repository.Query(term)
-    if err != nil {
-        return false
-    }
-    fmt.Println(searchResult)
-    return true
+	c.Log.Info("Searching index")
+	searchResult, err := c.Repository.Query(term)
+	if err != nil {
+		return false
+	}
+	fmt.Println(searchResult)
+	return true
 }
 
 func (c *GeoCatalogue) Get() bool {
-    return c.Repository.Get()
+	return c.Repository.Get()
 }

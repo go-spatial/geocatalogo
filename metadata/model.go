@@ -26,49 +26,49 @@
 package metadata
 
 import (
-    "time"
+	"time"
 )
 
 type Keywords struct {
-    Keyword []string
-    Type string
+	Keyword []string
+	Type    string
 }
 
 type Contact struct {
-    Type string
-    Value string
+	Type  string
+	Value string
 }
 
 type Date struct {
-    Type string
-    Value string
+	Type  string
+	Value string
 }
 
 type Extent struct {
-    Spatial [4]float64 // minx, miny, maxx, maxy
-    Temporal [2]time.Time
+	Spatial  [4]float64 // minx, miny, maxx, maxy
+	Temporal [2]time.Time
 }
 
 type Link struct {
-    Name string
-    Description string
-    Protocol string
-    URL string
+	Name        string
+	Description string
+	Protocol    string
+	URL         string
 }
 
 type Record struct {
-    Identifier string
-    Title string
-    Type string
-    DateInserted time.Time
-    DateModified time.Time
-    Schema string
-    Abstract string
-    KeywordsSets []Keywords
-    Contacts []Contact
-    Dates []Date
-    License string
-    Language string
-    Extents []Extent
-    Links []Link
+	Identifier   string
+	Title        string
+	Type         string
+	DateInserted time.Time
+	DateModified time.Time
+	Schema       string
+	Abstract     string
+	KeywordsSets []Keywords
+	Contacts     []Contact
+	Dates        []Date
+	License      string
+	Language     string
+	Extents      []Extent
+	Links        []Link
 }
