@@ -30,6 +30,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"runtime"
 
 	"flag"
@@ -39,6 +40,9 @@ import (
 )
 
 func main() {
+
+	fileList := []string{}
+	var plural = ""
 
 	if len(os.Args) == 1 {
 		fmt.Printf("Usage: %s <command> [<args>]\n", os.Args[0])
@@ -51,11 +55,10 @@ func main() {
 
 	indexCommand := flag.NewFlagSet("index", flag.ExitOnError)
 	fileFlag := indexCommand.String("file", "", "Path to metadata file")
-	//indexVerboseFlag := indexCommand.Bool("verbose", false, "This is a bool flag")
+	dirFlag := indexCommand.String("dir", "", "Path to directory of metadata files")
 
 	searchCommand := flag.NewFlagSet("search", flag.ExitOnError)
 	termFlag := searchCommand.String("term", "", "Search term(s)")
-	//searchVerboseFlag := searchCommand.Bool("verbose", false, "This is a bool flag")
 
 	versionCommand := flag.NewFlagSet("version", flag.ExitOnError)
 
@@ -81,24 +84,45 @@ func main() {
 	mycatalogo := geocatalogo.New()
 
 	if indexCommand.Parsed() {
-		if *fileFlag == "" {
-			fmt.Println("Please supply path to metadata file")
+		if *fileFlag == "" && *dirFlag == "" {
+			fmt.Println("Please supply path to metadata file(s) via -file or -dir")
 			os.Exit(3)
 		}
-		fmt.Printf("Indexing: %q\n", *fileFlag)
-		source, err := ioutil.ReadFile(*fileFlag)
-		if err != nil {
-			panic(err)
+		if *fileFlag != "" && *dirFlag != "" {
+			fmt.Println("Only one of -file or -dir is allowed")
+			os.Exit(4)
 		}
-		metadataRecord, err := parsers.ParseCSWRecord(source)
-		result := mycatalogo.Index(metadataRecord)
-		if result {
-			fmt.Println(result)
+		if *fileFlag != "" {
+			fileList = append(fileList, *fileFlag)
+		} else if *dirFlag != "" {
+			filepath.Walk(*dirFlag, func(path string, f os.FileInfo, err error) error {
+				if !f.IsDir() {
+					fileList = append(fileList, path)
+				}
+				return nil
+			})
+		}
+		if len(fileList) != 1 {
+			plural = "s"
+		}
+		fmt.Printf("Indexing %d file%s\n", len(fileList), plural)
+
+		for _, file := range fileList {
+			fmt.Printf("Indexing: %q\n", file)
+			source, err := ioutil.ReadFile(file)
+			if err != nil {
+				panic(err)
+			}
+			metadataRecord, err := parsers.ParseCSWRecord(source)
+			result := mycatalogo.Index(metadataRecord)
+			if result {
+				fmt.Println(result)
+			}
 		}
 	} else if searchCommand.Parsed() {
 		if *termFlag == "" {
 			fmt.Println("Please provide search term")
-			os.Exit(4)
+			os.Exit(5)
 		}
 		results := mycatalogo.Search(*termFlag)
 		fmt.Println(results)
