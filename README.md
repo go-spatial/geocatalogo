@@ -14,8 +14,8 @@ Geospatial Catalogue in Go
 # install geocatalogo
 go get github.com/tomkralidis/geocatalogo/...
 # set configuration
-# (sample in $GOPATH/src/github.com/tomkralidis/geocatalogo/default.env)
-. default.env
+# (sample in $GOPATH/src/github.com/tomkralidis/geocatalogo/geocatalogo-config.env)
+. geocatalogo-config.env
 ```
 
 ## Running
@@ -26,6 +26,9 @@ geocatalogo
 
 # index a metadata record
 geocatalogo index --file=/path/to/record.xml
+
+# index a directory of metadata records
+geocatalogo index --dir=/path/to/dir
 
 # search index
 geocatalogo search --term=landsat

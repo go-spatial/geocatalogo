@@ -1,8 +1,8 @@
 package geocatalogo_test
 
 import (
-	"testing"
 	"github.com/tomkralidis/geocatalogo"
+	"testing"
 )
 
 func TestSmokeTest(t *testing.T) {

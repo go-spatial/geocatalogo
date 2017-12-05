@@ -29,27 +29,27 @@ import (
 	"time"
 )
 
-type Keywords struct {
+type keywords struct {
 	Keyword []string
 	Type    string
 }
 
-type Contact struct {
+type contact struct {
 	Type  string
 	Value string
 }
 
-type Date struct {
+type date struct {
 	Type  string
 	Value string
 }
 
-type Extent struct {
+type extent struct {
 	Spatial  [4]float64 // minx, miny, maxx, maxy
 	Temporal [2]time.Time
 }
 
-type Link struct {
+type link struct {
 	Name        string
 	Description string
 	Protocol    string
@@ -64,11 +64,11 @@ type Record struct {
 	DateModified time.Time
 	Schema       string
 	Abstract     string
-	KeywordsSets []Keywords
-	Contacts     []Contact
-	Dates        []Date
+	KeywordsSets []keywords
+	Contacts     []contact
+	Dates        []date
 	License      string
 	Language     string
-	Extents      []Extent
-	Links        []Link
+	Extents      []extent
+	Links        []link
 }

@@ -22,7 +22,7 @@ type CSWRecord struct {
 	Creator          string           `xml:"http://purl.org/dc/elements/1.1/ creator"`
 	Language         string           `xml:"http://purl.org/dc/elements/1.1/ language"`
 	References       []string         `xml:"http://purl.org/dc/elements/1.1/ references"`
-	WGS84BoundingBox WGS84BoundingBox `xml:http://www.opengis.net/ows WGS84BoundingBox"`
+	WGS84BoundingBox WGS84BoundingBox `xml:"http://www.opengis.net/ows WGS84BoundingBox"`
 }
 
 type WGS84BoundingBox struct {

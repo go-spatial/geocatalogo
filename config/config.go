@@ -85,7 +85,7 @@ type Config struct {
 	}
 }
 
-// read environment variables into configuration
+// LoadFromEnv read environment variables into configuration
 func LoadFromEnv() Config {
 	var cfg Config
 	cfg.Repository.Mappings = make(map[string]string)
@@ -168,7 +168,7 @@ func LoadFromEnv() Config {
 	return cfg
 }
 
-// read YAML into configuration
+// LoadFromFile read YAML into configuration
 func LoadFromFile(filename string) Config {
 	var cfg Config
 	source, err := ioutil.ReadFile(filename)
