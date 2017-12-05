@@ -41,10 +41,11 @@ import (
 // VERSION provides the geocatalogo version installed.
 const VERSION string = "0.1.0"
 
+var log = logrus.New()
+
 // GeoCatalogue provides the core structure
 type GeoCatalogue struct {
 	Config     config.Config
-	Log        logrus.Logger
 	Repository repository.Repository
 }
 
@@ -55,23 +56,23 @@ func New() GeoCatalogue {
 	c.Config = config.LoadFromEnv()
 
 	// setup logging
-	c.Log = InitLog(&c.Config)
+	InitLog(&c.Config, log)
 
-	c.Log.Info("geocatalogo version " + VERSION)
-	c.Log.Info("Configuration: " + os.Getenv("GEOCATALOGO_CONFIG"))
+	log.Info("geocatalogo version " + VERSION)
+	log.Info("Configuration: " + os.Getenv("GEOCATALOGO_CONFIG"))
 
-	c.Log.Info("Loading repository")
-	c.Repository = repository.Open(c.Config, &c.Log)
+	log.Info("Loading repository")
+	c.Repository = repository.Open(c.Config, log)
 
 	return c
 }
 
 // Index adds a metadata record to the Index
 func (c *GeoCatalogue) Index(record metadata.Record) bool {
-	c.Log.Info("Indexing " + record.Identifier)
+	log.Info("Indexing " + record.Identifier)
 	err := c.Repository.Insert(record)
 	if err != nil {
-		c.Log.Errorf("Indexing failed: %v", err)
+		log.Errorf("Indexing failed: %v", err)
 		return false
 	}
 	return true
@@ -84,7 +85,7 @@ func (c *GeoCatalogue) UnIndex() bool {
 
 // Search performs a search/query against the Index
 func (c *GeoCatalogue) Search(term string) bool {
-	c.Log.Info("Searching index")
+	log.Info("Searching index")
 	searchResult, err := c.Repository.Query(term)
 	if err != nil {
 		return false

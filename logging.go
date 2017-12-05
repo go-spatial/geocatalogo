@@ -44,9 +44,7 @@ var LogLevels = map[string]logrus.Level{
 }
 
 // InitLog initializes the logging facility
-func InitLog(cfg *config.Config) logrus.Logger {
-	var log = *logrus.New()
-
+func InitLog(cfg *config.Config, log *logrus.Logger) {
 	// set defaults
 	log.Level = logrus.PanicLevel
 	log.Out = os.Stderr
@@ -65,5 +63,5 @@ func InitLog(cfg *config.Config) logrus.Logger {
 	// set debug level
 	log.SetLevel(LogLevels[cfg.Logging.Level])
 
-	return log
+	return
 }

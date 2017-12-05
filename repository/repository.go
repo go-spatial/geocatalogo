@@ -46,6 +46,7 @@ type Repository struct {
 
 // Open loads a repository
 func Open(cfg config.Config, log *logrus.Logger) Repository {
+	log.Info("TOMK")
 	log.Debug("Loading Repository" + cfg.Repository.URL)
 	log.Debug("Type: " + cfg.Repository.Type)
 	log.Debug("URL: " + cfg.Repository.URL)
@@ -98,6 +99,7 @@ func (r *Repository) Query(term string) (sr *bleve.SearchResult, err error) {
 			Type:       fmt.Sprintf("%v", rec.Fields["Type"]),
 			Title:      fmt.Sprintf("%v", rec.Fields["Title"]),
 			Abstract:   fmt.Sprintf("%v", rec.Fields["Abstract"]),
+			Language:   fmt.Sprintf("%v", rec.Fields["Language"]),
 		})
 		fmt.Printf(string(bytes))
 	}
