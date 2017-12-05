@@ -30,6 +30,7 @@ import (
     "fmt"
     "io/ioutil"
     "os"
+    "runtime"
 
     "flag"
 
@@ -71,7 +72,9 @@ func main() {
     }
 
     if versionCommand.Parsed() {
-        fmt.Println("geocatalogo version " + geocatalogo.VERSION)
+        osinfo := runtime.GOOS + "/"  + runtime.GOARCH
+
+        fmt.Println("geocatalogo version " + geocatalogo.VERSION + " " + osinfo)
         return
     }
 
