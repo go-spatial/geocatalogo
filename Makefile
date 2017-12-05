@@ -38,6 +38,9 @@ format:
 install:
 	go install ./...
 
+lint:
+	$(BIN)/golint
+
 test:
 	go test ./... -v
 
