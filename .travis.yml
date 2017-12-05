@@ -1,0 +1,16 @@
+language: go
+
+go:
+ - 1.9.x
+ - 1.8.x
+ - 1.7.x
+
+install:
+  - go get github.com/tomkralidis/geocatalogo/...
+  - go get -u github.com/golang/lint/golint
+
+script:
+  - . default.env
+  - go test ./... -v
+  - go vet
+  - golint
