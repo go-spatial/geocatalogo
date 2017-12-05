@@ -25,6 +25,7 @@
 
 BIN=$(GOPATH)/bin
 
+all: build install
 
 build:
 	go build ./...
@@ -47,4 +48,4 @@ test:
 vet:
 	go vet
 
-.PHONY: build clean format install test vet
+.PHONY: all build clean format install test vet
