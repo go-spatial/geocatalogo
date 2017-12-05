@@ -44,6 +44,7 @@ type Repository struct {
 	Index    bleve.Index
 }
 
+// Open loads a repository
 func Open(cfg config.Config, log *logrus.Logger) Repository {
 	log.Debug("Loading Repository" + cfg.Repository.URL)
 	log.Debug("Type: " + cfg.Repository.Type)

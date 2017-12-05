@@ -23,7 +23,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// Package geocatalogo
 package geocatalogo
 
 import (
@@ -33,6 +32,8 @@ import (
 	"github.com/tomkralidis/geocatalogo/config"
 )
 
+// LogLevels provides a mapping between configuration and logging
+// level types
 var LogLevels = map[string]logrus.Level{
 	"DEBUG": logrus.DebugLevel,
 	"INFO":  logrus.InfoLevel,
@@ -42,6 +43,7 @@ var LogLevels = map[string]logrus.Level{
 	"NONE":  logrus.PanicLevel,
 }
 
+// InitLog initializes the logging facility
 func InitLog(cfg *config.Config) logrus.Logger {
 	var log = *logrus.New()
 

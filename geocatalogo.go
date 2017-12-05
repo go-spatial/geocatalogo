@@ -23,7 +23,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// Package geocatalogo
+// Package geocatalogo provides the main interactions
+// with the geospatial catalogue
 package geocatalogo
 
 import (
@@ -40,12 +41,14 @@ import (
 // VERSION provides the geocatalogo version installed.
 const VERSION string = "0.1.0"
 
+// GeoCatalogue provides the core structure
 type GeoCatalogue struct {
 	Config     config.Config
 	Log        logrus.Logger
 	Repository repository.Repository
 }
 
+// New provides the initializing functionality
 func New() GeoCatalogue {
 
 	c := GeoCatalogue{}
@@ -63,6 +66,7 @@ func New() GeoCatalogue {
 	return c
 }
 
+// Index adds a metadata record to the Index
 func (c *GeoCatalogue) Index(record metadata.Record) bool {
 	c.Log.Info("Indexing " + record.Identifier)
 	err := c.Repository.Insert(record)
@@ -73,10 +77,12 @@ func (c *GeoCatalogue) Index(record metadata.Record) bool {
 	return true
 }
 
+// UnIndex removes a metadata record to the Index
 func (c *GeoCatalogue) UnIndex() bool {
 	return c.Repository.Delete()
 }
 
+// Search performs a search/query against the Index
 func (c *GeoCatalogue) Search(term string) bool {
 	c.Log.Info("Searching index")
 	searchResult, err := c.Repository.Query(term)
@@ -87,6 +93,7 @@ func (c *GeoCatalogue) Search(term string) bool {
 	return true
 }
 
+// Get retrieves a single metadata record from the Index
 func (c *GeoCatalogue) Get() bool {
 	return c.Repository.Get()
 }
