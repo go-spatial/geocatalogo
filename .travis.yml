@@ -10,7 +10,7 @@ install:
   - go get -u github.com/golang/lint/golint
 
 script:
-  - . default.env
+  - . geocatalogo-config.env
   - go test ./... -v
   - go vet
   - golint
