@@ -88,8 +88,6 @@ func main() {
 		return
 	}
 
-	mycatalogo := geocatalogo.New()
-
 	if createIndexCommand.Parsed() {
 		testLog := logrus.New()
 
@@ -99,10 +97,13 @@ func main() {
 
 		if !status {
 			fmt.Println("Repository not created")
+		} else {
+			fmt.Println("Repository created")
 		}
-		fmt.Println("Repository created")
 		return
 	}
+
+	mycatalogo := geocatalogo.New()
 
 	if indexCommand.Parsed() {
 		if *fileFlag == "" && *dirFlag == "" {
