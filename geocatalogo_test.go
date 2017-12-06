@@ -10,14 +10,17 @@ import (
 )
 
 func init() {
+	fmt.Print("INIT")
 	testLog := logrus.New()
 
+	fmt.Println("loading from env")
 	testConfig := config.LoadFromEnv()
+	fmt.Println("creating new repo")
 
-	_, err := repository.New(testConfig, testLog)
+	status := repository.New(testConfig, testLog)
 
-	if err != nil {
-		fmt.Println(err)
+	if !status {
+		fmt.Println("Repository not created")
 	}
 }
 

@@ -34,9 +34,11 @@ import (
 	"runtime"
 
 	"flag"
-
+	"github.com/sirupsen/logrus"
 	"github.com/tomkralidis/geocatalogo"
+	"github.com/tomkralidis/geocatalogo/config"
 	"github.com/tomkralidis/geocatalogo/metadata/parsers"
+	"github.com/tomkralidis/geocatalogo/repository"
 )
 
 func main() {
@@ -47,11 +49,14 @@ func main() {
 	if len(os.Args) == 1 {
 		fmt.Printf("Usage: %s <command> [<args>]\n", os.Args[0])
 		fmt.Println("Commands: ")
+		fmt.Println(" createindex: add a metadata record to the index")
 		fmt.Println(" index: add a metadata record to the index")
 		fmt.Println(" search: search the index")
 		fmt.Println(" version: geocatalogo version")
 		return
 	}
+
+	createIndexCommand := flag.NewFlagSet("createindex", flag.ExitOnError)
 
 	indexCommand := flag.NewFlagSet("index", flag.ExitOnError)
 	fileFlag := indexCommand.String("file", "", "Path to metadata file")
@@ -63,6 +68,8 @@ func main() {
 	versionCommand := flag.NewFlagSet("version", flag.ExitOnError)
 
 	switch os.Args[1] {
+	case "createindex":
+		createIndexCommand.Parse(os.Args[2:])
 	case "index":
 		indexCommand.Parse(os.Args[2:])
 	case "search":
@@ -82,6 +89,20 @@ func main() {
 	}
 
 	mycatalogo := geocatalogo.New()
+
+	if createIndexCommand.Parsed() {
+		testLog := logrus.New()
+
+		testConfig := config.LoadFromEnv()
+
+		status := repository.New(testConfig, testLog)
+
+		if !status {
+			fmt.Println("Repository not created")
+		}
+		fmt.Println("Repository created")
+		return
+	}
 
 	if indexCommand.Parsed() {
 		if *fileFlag == "" && *dirFlag == "" {

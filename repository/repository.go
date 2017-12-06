@@ -45,24 +45,21 @@ type Repository struct {
 }
 
 // New creates a repository
-func New(cfg config.Config, log *logrus.Logger) (Repository, error) {
+func New(cfg config.Config, log *logrus.Logger) bool {
 	log.Debug("Creating Repository" + cfg.Repository.URL)
 	log.Debug("Type: " + cfg.Repository.Type)
 	log.Debug("URL: " + cfg.Repository.URL)
-	s := Repository{
-		Type:     cfg.Repository.Type,
-		URL:      cfg.Repository.URL,
-		Mappings: cfg.Repository.Mappings,
-	}
 
 	mapping := bleve.NewIndexMapping()
 	index, err := bleve.New(cfg.Repository.URL, mapping)
-	if err != nil {
-		return s, err
-	}
-	s.Index = index
 
-	return s, nil
+	if err != nil {
+		log.Errorf("Cannot create repository: %v\n", err)
+		return false
+	}
+	index.Close()
+
+	return true
 }
 
 // Open loads a repository
