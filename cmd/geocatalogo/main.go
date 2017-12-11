@@ -32,6 +32,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"flag"
 	"github.com/sirupsen/logrus"
@@ -43,8 +44,10 @@ import (
 
 func main() {
 
-	fileList := []string{}
 	var plural = ""
+	var fileCount = 0
+	var fileCounter = 0
+	fileList := []string{}
 
 	if len(os.Args) == 1 {
 		fmt.Printf("Usage: %s <command> [<args>]\n", os.Args[0])
@@ -124,22 +127,34 @@ func main() {
 				return nil
 			})
 		}
-		if len(fileList) != 1 {
+
+		fileCount = len(fileList)
+
+		if fileCount != 1 {
 			plural = "s"
 		}
+
 		fmt.Printf("Indexing %d file%s\n", len(fileList), plural)
 
 		for _, file := range fileList {
-			fmt.Printf("Indexing: %q\n", file)
+			start := time.Now()
+			parseStart := time.Now()
+			fmt.Printf("Indexing file %d of %d: %q\n", fileCounter, fileCount, file)
 			source, err := ioutil.ReadFile(file)
 			if err != nil {
 				panic(err)
 			}
 			metadataRecord, err := parsers.ParseCSWRecord(source)
+			parseElapsed := time.Since(parseStart)
+			indexStart := time.Now()
 			result := mycatalogo.Index(metadataRecord)
-			if result {
-				fmt.Println(result)
+			if !result {
+				fmt.Println("Error Indexing")
 			}
+			indexElapsed := time.Since(indexStart)
+			elapsed := time.Since(start)
+			fmt.Printf("Function took %s (parse: %s, index: %s)\n", elapsed, parseElapsed, indexElapsed)
+			fileCounter++
 		}
 	} else if searchCommand.Parsed() {
 		if *termFlag == "" {
