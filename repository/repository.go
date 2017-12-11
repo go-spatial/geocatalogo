@@ -28,8 +28,11 @@ package repository
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/blevesearch/bleve"
+	"github.com/blevesearch/bleve/index/store/moss"
+	"github.com/blevesearch/bleve/index/upsidedown"
 	"github.com/sirupsen/logrus"
 
 	"github.com/tomkralidis/geocatalogo/config"
@@ -46,17 +49,24 @@ type Repository struct {
 
 // New creates a repository
 func New(cfg config.Config, log *logrus.Logger) bool {
+
+	kvconfig := map[string]interface{}{
+		"mossLowerLevelStoreName": "mossStore",
+	}
+
 	log.Debug("Creating Repository" + cfg.Repository.URL)
 	log.Debug("Type: " + cfg.Repository.Type)
 	log.Debug("URL: " + cfg.Repository.URL)
 
 	mapping := bleve.NewIndexMapping()
-	index, err := bleve.New(cfg.Repository.URL, mapping)
+	index, err := bleve.NewUsing(cfg.Repository.URL, mapping, upsidedown.Name, moss.Name, kvconfig)
 
 	if err != nil {
 		log.Errorf("Cannot create repository: %v\n", err)
 		return false
 	}
+	log.Debug("Persisting moss kv index")
+	time.Sleep(30 * time.Second)
 	index.Close()
 
 	return true
