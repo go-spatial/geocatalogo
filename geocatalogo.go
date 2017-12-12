@@ -46,7 +46,7 @@ var log = logrus.New()
 // GeoCatalogue provides the core structure
 type GeoCatalogue struct {
 	Config     config.Config
-	Repository repository.Repository
+	Repository repository.BleveRepository
 }
 
 // New provides the initializing functionality

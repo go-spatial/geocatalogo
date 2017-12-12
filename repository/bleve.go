@@ -41,7 +41,7 @@ import (
 )
 
 // Repository provides an object model for repository.
-type Repository struct {
+type BleveRepository struct {
 	Type     string
 	URL      string
 	Mappings map[string]string
@@ -74,11 +74,11 @@ func New(cfg config.Config, log *logrus.Logger) bool {
 }
 
 // Open loads a repository
-func Open(cfg config.Config, log *logrus.Logger) Repository {
+func Open(cfg config.Config, log *logrus.Logger) BleveRepository {
 	log.Debug("Loading Repository" + cfg.Repository.URL)
 	log.Debug("Type: " + cfg.Repository.Type)
 	log.Debug("URL: " + cfg.Repository.URL)
-	s := Repository{
+	s := BleveRepository{
 		Type:     cfg.Repository.Type,
 		URL:      cfg.Repository.URL,
 		Mappings: cfg.Repository.Mappings,
@@ -94,20 +94,24 @@ func Open(cfg config.Config, log *logrus.Logger) Repository {
 	return s
 }
 
-func (r *Repository) Insert(record metadata.Record) error {
+// Insert inserts a record into the repository
+func (r *BleveRepository) Insert(record metadata.Record) error {
 	err := r.Index.Index(record.Identifier, record)
 	return err
 }
 
-func (r *Repository) Update() bool {
+// Update updates a record into the repository
+func (r *BleveRepository) Update() bool {
 	return true
 }
 
-func (r *Repository) Delete() bool {
+// Delete deletes a record into the repository
+func (r *BleveRepository) Delete() bool {
 	return true
 }
 
-func (r *Repository) Query(term string, sr *search.SearchResults, from int, size int) error {
+// Query performs a search against the repository
+func (r *BleveRepository) Query(term string, sr *search.SearchResults, from int, size int) error {
 	query := bleve.NewMatchQuery(term)
 	searchRequest := bleve.NewSearchRequest(query)
 	//searchRequest.Highlight = bleve.NewHighlightWithStyle(ansi.Name)
@@ -134,6 +138,7 @@ func (r *Repository) Query(term string, sr *search.SearchResults, from int, size
 	return nil
 }
 
-func (r *Repository) Get() bool {
+// Get gets specified metadata records from the repository
+func (r *BleveRepository) Get() bool {
 	return true
 }

@@ -147,6 +147,9 @@ func main() {
 				panic(err)
 			}
 			metadataRecord, err := parsers.ParseCSWRecord(source)
+			if err != nil {
+				panic(err)
+			}
 			parseElapsed := time.Since(parseStart)
 			indexStart := time.Now()
 			result := mycatalogo.Index(metadataRecord)

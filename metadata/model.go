@@ -56,6 +56,7 @@ type link struct {
 	URL         string
 }
 
+// Record describes a generic metadata record
 type Record struct {
 	Identifier   string
 	Title        string

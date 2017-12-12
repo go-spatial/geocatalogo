@@ -11,6 +11,7 @@ import (
 	"github.com/tomkralidis/geocatalogo/metadata"
 )
 
+// CSWRecord provides a CSW 2.0.2 Record model
 type CSWRecord struct {
 	Identifier       string           `xml:"http://purl.org/dc/elements/1.1/ identifier"`
 	Type             string           `xml:"http://purl.org/dc/elements/1.1/ type"`
@@ -22,15 +23,15 @@ type CSWRecord struct {
 	Creator          string           `xml:"http://purl.org/dc/elements/1.1/ creator"`
 	Language         string           `xml:"http://purl.org/dc/elements/1.1/ language"`
 	References       []string         `xml:"http://purl.org/dc/elements/1.1/ references"`
-	WGS84BoundingBox WGS84BoundingBox `xml:"http://www.opengis.net/ows WGS84BoundingBox"`
+	wgs84BoundingBox wgs84BoundingBox `xml:"http://www.opengis.net/ows wgs84BoundingBox"`
 }
 
-type WGS84BoundingBox struct {
+type wgs84BoundingBox struct {
 	LowerCorner string `xml:"http://www.opengis.net/ows LowerCorner"`
 	UpperCorner string `xml:"http://www.opengis.net/ows UpperCorner"`
 }
 
-func (e *WGS84BoundingBox) Minx() (float64, error) {
+func (e *wgs84BoundingBox) Minx() (float64, error) {
 	s := strings.Split(e.LowerCorner, " ")
 	minx, err := strconv.ParseFloat(s[0], 64)
 	if err != nil {
@@ -39,7 +40,7 @@ func (e *WGS84BoundingBox) Minx() (float64, error) {
 	return minx, nil
 }
 
-func (e *WGS84BoundingBox) Miny() (float64, error) {
+func (e *wgs84BoundingBox) Miny() (float64, error) {
 	s := strings.Split(e.LowerCorner, " ")
 	miny, err := strconv.ParseFloat(s[1], 64)
 	if err != nil {
@@ -48,7 +49,7 @@ func (e *WGS84BoundingBox) Miny() (float64, error) {
 	return miny, nil
 }
 
-func (e *WGS84BoundingBox) Maxx() (float64, error) {
+func (e *wgs84BoundingBox) Maxx() (float64, error) {
 	s := strings.Split(e.UpperCorner, " ")
 	maxx, err := strconv.ParseFloat(s[0], 64)
 	if err != nil {
@@ -57,7 +58,7 @@ func (e *WGS84BoundingBox) Maxx() (float64, error) {
 	return maxx, nil
 }
 
-func (e *WGS84BoundingBox) Maxy() (float64, error) {
+func (e *wgs84BoundingBox) Maxy() (float64, error) {
 	s := strings.Split(e.UpperCorner, " ")
 	maxy, err := strconv.ParseFloat(s[1], 64)
 	if err != nil {
@@ -66,6 +67,7 @@ func (e *WGS84BoundingBox) Maxy() (float64, error) {
 	return maxy, nil
 }
 
+// ParseCSWRecord parses CSWRecord
 func ParseCSWRecord(xmlBuffer []byte) (metadata.Record, error) {
 	var cswRecord CSWRecord
 	var metadataRecord metadata.Record
