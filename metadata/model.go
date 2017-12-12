@@ -59,17 +59,17 @@ type link struct {
 // Record describes a generic metadata record
 type Record struct {
 	Identifier   string
-	Title        string
-	Type         string
-	DateInserted time.Time
-	DateModified time.Time
-	Schema       string
-	Abstract     string
+	Title        string `json:",omitempty"`
+	Type         string `json:",omitempty"`
+	DateInserted time.Time `json:",omitempty"`
+	DateModified time.Time `json:",omitempty"`
+	Schema       string `json:",omitempty"`
+	Abstract     string `json:",omitempty"`
 	KeywordsSets []keywords
 	Contacts     []contact
 	Dates        []date
-	License      string
-	Language     string
+	License      string `json:",omitempty"`
+	Language     string `json:",omitempty"`
 	Extents      []extent
 	Links        []link
 }

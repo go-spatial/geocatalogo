@@ -27,6 +27,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -55,6 +56,7 @@ func main() {
 		fmt.Println(" createindex: add a metadata record to the index")
 		fmt.Println(" index: add a metadata record to the index")
 		fmt.Println(" search: search the index")
+		fmt.Println(" get: get metadata record by id")
 		fmt.Println(" version: geocatalogo version")
 		return
 	}
@@ -70,6 +72,9 @@ func main() {
 	fromFlag := searchCommand.Int("from", 1, "Start position / offset (default=1)")
 	sizeFlag := searchCommand.Int("size", 10, "Number of results to return (default=10)")
 
+	getCommand := flag.NewFlagSet("get", flag.ExitOnError)
+	idFlag := getCommand.String("id", "", "identifier")
+
 	versionCommand := flag.NewFlagSet("version", flag.ExitOnError)
 
 	switch os.Args[1] {
@@ -79,6 +84,8 @@ func main() {
 		indexCommand.Parse(os.Args[2:])
 	case "search":
 		searchCommand.Parse(os.Args[2:])
+	case "get":
+		getCommand.Parse(os.Args[2:])
 	case "version":
 		versionCommand.Parse(os.Args[2:])
 	default:
@@ -167,8 +174,19 @@ func main() {
 			os.Exit(5)
 		}
 		results := mycatalogo.Search(*termFlag, *fromFlag, *sizeFlag)
+		fmt.Printf("Found %d records\n", results.Matches)
 		for _, result := range results.Records {
-			fmt.Printf("%s - %s\n", result.Identifier, result.Title)
+			fmt.Printf("    %s - %s\n", result.Identifier, result.Title)
+		}
+	} else if getCommand.Parsed() {
+		if *idFlag == "" {
+			fmt.Println("Please provide identifier")
+			os.Exit(6)
+		}
+		results := mycatalogo.Get(*idFlag)
+		for _, result := range results.Records {
+			b, _ := json.MarshalIndent(result, "", "    ")
+			fmt.Printf("%s\n", b)
 		}
 	}
 	return

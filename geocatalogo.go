@@ -95,6 +95,12 @@ func (c *GeoCatalogue) Search(term string, from int, size int) search.SearchResu
 }
 
 // Get retrieves a single metadata record from the Index
-func (c *GeoCatalogue) Get() bool {
-	return c.Repository.Get()
+func (c *GeoCatalogue) Get(identifier string) search.SearchResults{
+	sr := search.SearchResults{}
+	log.Info("Searching index")
+	err := c.Repository.Get(identifier, &sr)
+	if err != nil {
+		return sr
+	}
+	return sr
 }

@@ -32,7 +32,6 @@ import (
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/index/store/moss"
 	"github.com/blevesearch/bleve/index/upsidedown"
-	//"github.com/blevesearch/bleve/search/highlight/format/ansi"
 	"github.com/sirupsen/logrus"
 
 	"github.com/tomkralidis/geocatalogo/config"
@@ -112,19 +111,30 @@ func (r *BleveRepository) Delete() bool {
 
 // Query performs a search against the repository
 func (r *BleveRepository) Query(term string, sr *search.SearchResults, from int, size int) error {
-	query := bleve.NewMatchQuery(term)
+	query := bleve.NewQueryStringQuery(term)
 	searchRequest := bleve.NewSearchRequest(query)
-	//searchRequest.Highlight = bleve.NewHighlightWithStyle(ansi.Name)
 	searchRequest.Fields = []string{"*"}
 	searchRequest.From = from
 	searchRequest.Size = size
+
 	searchResult, err := r.Index.Search(searchRequest)
+
 	if err != nil {
 		return err
+
 	}
+
+	sr.ElapsedTime = int(searchResult.Took / time.Millisecond)
 	sr.Matches = int(searchResult.Total)
-	sr.Returned = (searchResult.Request.From + 1) + (searchResult.Request.From + len(searchResult.Hits))
-	sr.NextRecord = 1111
+	sr.Returned = size
+	sr.NextRecord = size+1
+	sr.Records = make([]metadata.Record, 0)
+
+	if sr.Matches < size {
+		sr.Returned = sr.Matches
+		sr.NextRecord = 0
+	}
+
 	for _, rec := range searchResult.Hits {
 		mr := metadata.Record{
 			Identifier: fmt.Sprintf("%v", rec.Fields["Identifier"]),
@@ -139,6 +149,10 @@ func (r *BleveRepository) Query(term string, sr *search.SearchResults, from int,
 }
 
 // Get gets specified metadata records from the repository
-func (r *BleveRepository) Get() bool {
-	return true
+func (r *BleveRepository) Get(identifier string, sr *search.SearchResults) error {
+	r.Query(identifier, sr, 0, 1)
+	sr.Matches = 1
+	sr.Returned = 1
+	sr.NextRecord = 0
+	return nil
 }

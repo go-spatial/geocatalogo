@@ -30,23 +30,65 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/tomkralidis/geocatalogo"
+	"github.com/tomkralidis/geocatalogo/search"
 )
 
 var mycatalogo = geocatalogo.New()
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	q, ok := r.URL.Query()["q"]
-	//startPosition, ok := r.URL.Query()["startPosition"]
-	//maxRecords, ok := r.URL.Query()["maxRecords"]"
+	var q string
+	var recordids []string
+	var startPosition int = 0
+	var maxRecords int = 10
+	var value []string
+	var results search.SearchResults
 
-	if !ok || len(q) < 1 {
-		fmt.Fprintf(w, "Url Param 'q' is missing")
+	query := r.URL.Query()
+
+	value, _ = query["startPosition"]
+	if len(value) > 0 {
+		startPosition, _ = strconv.Atoi(value[0])
+	}
+
+	value, _ = query["maxRecords"]
+	if len(value) > 0 {
+		maxRecords, _ = strconv.Atoi(value[0])
+	}
+
+	value, _ = query["q"]
+	if len(value) > 0 {
+		q = value[0]
+	}
+
+	value, _ = query["recordids"]
+	if len(value) > 0 {
+		recordids = strings.Split(value[0], ",")
+	}
+
+	if q == "" && len(recordids) < 1 {
+		fmt.Fprintf(w, "ERROR: one of q or recordids are required")
 		return
 	}
-	results := mycatalogo.Search(q[0], 10, 10)
+
+	if q != "" && len(recordids) > 0 {
+		fmt.Fprintf(w, "ERROR: q and recordids are mutually exclusive")
+		return
+	}
+
+	if q != "" {
+		results = mycatalogo.Search(q, startPosition, maxRecords)
+	}
+
+	if len(recordids) > 0 {
+		results = mycatalogo.Get(recordids[0])
+	}
+
 	b, err := json.MarshalIndent(results, "", "    ")
+
 	if err != nil {
 		fmt.Fprintf(w, "ERROR: %s", err)
 		return
