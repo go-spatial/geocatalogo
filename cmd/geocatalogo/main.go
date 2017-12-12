@@ -67,6 +67,8 @@ func main() {
 
 	searchCommand := flag.NewFlagSet("search", flag.ExitOnError)
 	termFlag := searchCommand.String("term", "", "Search term(s)")
+	fromFlag := searchCommand.Int("from", 1, "Start position / offset (default=1)")
+	sizeFlag := searchCommand.Int("size", 10, "Number of results to return (default=10)")
 
 	versionCommand := flag.NewFlagSet("version", flag.ExitOnError)
 
@@ -161,8 +163,10 @@ func main() {
 			fmt.Println("Please provide search term")
 			os.Exit(5)
 		}
-		results := mycatalogo.Search(*termFlag)
-		fmt.Println(results)
+		results := mycatalogo.Search(*termFlag, *fromFlag, *sizeFlag)
+		for _, result := range results.Records {
+			fmt.Printf("%s - %s\n", result.Identifier, result.Title)
+		}
 	}
 	return
 }

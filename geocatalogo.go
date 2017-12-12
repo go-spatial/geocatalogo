@@ -28,7 +28,6 @@
 package geocatalogo
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -36,6 +35,7 @@ import (
 	"github.com/tomkralidis/geocatalogo/config"
 	"github.com/tomkralidis/geocatalogo/metadata"
 	"github.com/tomkralidis/geocatalogo/repository"
+	"github.com/tomkralidis/geocatalogo/search"
 )
 
 // VERSION provides the geocatalogo version installed.
@@ -84,14 +84,14 @@ func (c *GeoCatalogue) UnIndex() bool {
 }
 
 // Search performs a search/query against the Index
-func (c *GeoCatalogue) Search(term string) bool {
+func (c *GeoCatalogue) Search(term string, from int, size int) search.SearchResults {
+	sr := search.SearchResults{}
 	log.Info("Searching index")
-	searchResult, err := c.Repository.Query(term)
+	err := c.Repository.Query(term, &sr, from, size)
 	if err != nil {
-		return false
+		return sr
 	}
-	fmt.Println(searchResult)
-	return true
+	return sr
 }
 
 // Get retrieves a single metadata record from the Index

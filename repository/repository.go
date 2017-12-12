@@ -26,17 +26,18 @@
 package repository
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/index/store/moss"
 	"github.com/blevesearch/bleve/index/upsidedown"
+	//"github.com/blevesearch/bleve/search/highlight/format/ansi"
 	"github.com/sirupsen/logrus"
 
 	"github.com/tomkralidis/geocatalogo/config"
 	"github.com/tomkralidis/geocatalogo/metadata"
+	"github.com/tomkralidis/geocatalogo/search"
 )
 
 // Repository provides an object model for repository.
@@ -106,25 +107,31 @@ func (r *Repository) Delete() bool {
 	return true
 }
 
-func (r *Repository) Query(term string) (sr *bleve.SearchResult, err error) {
+func (r *Repository) Query(term string, sr *search.SearchResults, from int, size int) error {
 	query := bleve.NewMatchQuery(term)
 	searchRequest := bleve.NewSearchRequest(query)
+	//searchRequest.Highlight = bleve.NewHighlightWithStyle(ansi.Name)
 	searchRequest.Fields = []string{"*"}
+	searchRequest.From = from
+	searchRequest.Size = size
 	searchResult, err := r.Index.Search(searchRequest)
 	if err != nil {
-		return searchResult, err
+		return err
 	}
+	sr.Matches = int(searchResult.Total)
+	sr.Returned = (searchResult.Request.From + 1) + (searchResult.Request.From + len(searchResult.Hits))
+	sr.NextRecord = 1111
 	for _, rec := range searchResult.Hits {
-		bytes, _ := json.Marshal(metadata.Record{
+		mr := metadata.Record{
 			Identifier: fmt.Sprintf("%v", rec.Fields["Identifier"]),
 			Type:       fmt.Sprintf("%v", rec.Fields["Type"]),
 			Title:      fmt.Sprintf("%v", rec.Fields["Title"]),
 			Abstract:   fmt.Sprintf("%v", rec.Fields["Abstract"]),
 			Language:   fmt.Sprintf("%v", rec.Fields["Language"]),
-		})
-		fmt.Printf(string(bytes))
+		}
+		sr.Records = append(sr.Records, mr)
 	}
-	return searchResult, nil
+	return nil
 }
 
 func (r *Repository) Get() bool {

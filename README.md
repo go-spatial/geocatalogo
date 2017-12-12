@@ -11,8 +11,12 @@ Geospatial Catalogue in Go
 ## Installation
 
 ```bash
+# install dependencies
+go get golang.org/x/text/encoding
 # install geocatalogo
 go get github.com/tomkralidis/geocatalogo/...
+# install utilities/helpers
+go get github.com/blevesearch/bleve/...
 # set configuration
 # (sample in $GOPATH/src/github.com/tomkralidis/geocatalogo/geocatalogo-config.env)
 . geocatalogo-config.env
