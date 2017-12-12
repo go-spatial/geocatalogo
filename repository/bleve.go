@@ -127,7 +127,7 @@ func (r *BleveRepository) Query(term string, sr *search.SearchResults, from int,
 	sr.ElapsedTime = int(searchResult.Took / time.Millisecond)
 	sr.Matches = int(searchResult.Total)
 	sr.Returned = size
-	sr.NextRecord = size+1
+	sr.NextRecord = size + 1
 	sr.Records = make([]metadata.Record, 0)
 
 	if sr.Matches < size {

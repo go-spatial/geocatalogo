@@ -32,8 +32,8 @@ import (
 // SearchResults provides the search result structure
 type SearchResults struct {
 	ElapsedTime int
-	Matches    int
-	Returned   int
-	NextRecord int
-	Records    []metadata.Record
+	Matches     int
+	Returned    int
+	NextRecord  int
+	Records     []metadata.Record
 }
