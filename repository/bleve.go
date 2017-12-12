@@ -40,7 +40,7 @@ import (
 	"github.com/tomkralidis/geocatalogo/search"
 )
 
-// Repository provides an object model for repository.
+// BleveRepository provides an object model for repository.
 type BleveRepository struct {
 	Type     string
 	URL      string
