@@ -70,11 +70,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if q == "" && len(recordids) < 1 {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "ERROR: one of q or recordids are required")
 		return
 	}
 
 	if q != "" && len(recordids) > 0 {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "ERROR: q and recordids are mutually exclusive")
 		return
 	}
@@ -90,6 +92,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	b, err := json.MarshalIndent(results, "", "    ")
 
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "ERROR: %s", err)
 		return
 	}

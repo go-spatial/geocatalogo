@@ -112,6 +112,7 @@ func (r *BleveRepository) Delete() bool {
 // Query performs a search against the repository
 func (r *BleveRepository) Query(term string, sr *search.SearchResults, from int, size int) error {
 	query := bleve.NewQueryStringQuery(term)
+
 	searchRequest := bleve.NewSearchRequest(query)
 	searchRequest.Fields = []string{"*"}
 	searchRequest.From = from
@@ -150,9 +151,27 @@ func (r *BleveRepository) Query(term string, sr *search.SearchResults, from int,
 
 // Get gets specified metadata records from the repository
 func (r *BleveRepository) Get(identifier string, sr *search.SearchResults) error {
-	r.Query(identifier, sr, 0, 1)
+	query := bleve.NewDocIDQuery([]string{identifier})
+	searchRequest := bleve.NewSearchRequest(query)
+	searchResult, err := r.Index.Search(searchRequest)
+	if err != nil {
+		return err
+	}
+
 	sr.Matches = 1
 	sr.Returned = 1
 	sr.NextRecord = 0
+	sr.Records = make([]metadata.Record, 0)
+
+	rec := searchResult.Hits[0]
+
+	mr := metadata.Record{
+		Identifier: fmt.Sprintf("%v", rec.Fields["Identifier"]),
+		Type:       fmt.Sprintf("%v", rec.Fields["Type"]),
+		Title:      fmt.Sprintf("%v", rec.Fields["Title"]),
+		Abstract:   fmt.Sprintf("%v", rec.Fields["Abstract"]),
+		Language:   fmt.Sprintf("%v", rec.Fields["Language"]),
+	}
+	sr.Records = append(sr.Records, mr)
 	return nil
 }

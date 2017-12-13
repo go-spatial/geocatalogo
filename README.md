@@ -20,7 +20,9 @@ go get github.com/blevesearch/bleve/...
 go install github.com/golang/lint/...
 # set configuration
 # (sample in $GOPATH/src/github.com/tomkralidis/geocatalogo/geocatalogo-config.env)
-. geocatalogo-config.env
+cp geocatalogo-config.env local.env
+vi local.env  # update accordingly
+. local.env
 ```
 
 ## Running
@@ -37,6 +39,9 @@ geocatalogo index --dir=/path/to/dir
 
 # search index
 geocatalogo search --term=landsat
+
+# get a metadata record by id
+geocatalogo get --id=12345
 
 # get version
 geocatalogo version
@@ -59,4 +64,3 @@ All bugs, enhancements and issues are managed on [GitHub](https://github.com/tom
 ## Contact
 
 * [Tom Kralidis](https://github.com/tomkralidis)
-
