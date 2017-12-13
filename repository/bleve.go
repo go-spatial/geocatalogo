@@ -164,7 +164,8 @@ func (r *BleveRepository) Get(identifiers []string, sr *search.SearchResults) er
 	return nil
 }
 
-// TransformSearchResultToRecord
+// TransformSearchResultToRecord provides a helper function to transform a
+// bleveSearch.DocumentMatch result to a metadata.Record
 func TransformSearchResultToRecord(rec *bleveSearch.DocumentMatch) metadata.Record {
 	mr := metadata.Record{
 		Identifier: fmt.Sprintf("%v", rec.Fields["Identifier"]),
