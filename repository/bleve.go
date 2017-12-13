@@ -32,6 +32,7 @@ import (
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/index/store/moss"
 	"github.com/blevesearch/bleve/index/upsidedown"
+	bleveSearch "github.com/blevesearch/bleve/search"
 	"github.com/sirupsen/logrus"
 
 	"github.com/tomkralidis/geocatalogo/config"
@@ -137,34 +138,34 @@ func (r *BleveRepository) Query(term string, sr *search.SearchResults, from int,
 	}
 
 	for _, rec := range searchResult.Hits {
-		mr := metadata.Record{
-			Identifier: fmt.Sprintf("%v", rec.Fields["Identifier"]),
-			Type:       fmt.Sprintf("%v", rec.Fields["Type"]),
-			Title:      fmt.Sprintf("%v", rec.Fields["Title"]),
-			Abstract:   fmt.Sprintf("%v", rec.Fields["Abstract"]),
-			Language:   fmt.Sprintf("%v", rec.Fields["Language"]),
-		}
-		sr.Records = append(sr.Records, mr)
+		sr.Records = append(sr.Records, TransformSearchResultToRecord(rec))
 	}
 	return nil
 }
 
 // Get gets specified metadata records from the repository
-func (r *BleveRepository) Get(identifier string, sr *search.SearchResults) error {
-	query := bleve.NewDocIDQuery([]string{identifier})
+func (r *BleveRepository) Get(identifiers []string, sr *search.SearchResults) error {
+	query := bleve.NewDocIDQuery(identifiers)
 	searchRequest := bleve.NewSearchRequest(query)
+	searchRequest.Fields = []string{"*"}
 	searchResult, err := r.Index.Search(searchRequest)
 	if err != nil {
 		return err
 	}
 
-	sr.Matches = 1
-	sr.Returned = 1
+	sr.Matches = int(searchResult.Total)
+	sr.Returned = sr.Matches
 	sr.NextRecord = 0
 	sr.Records = make([]metadata.Record, 0)
 
-	rec := searchResult.Hits[0]
+	for _, rec := range searchResult.Hits {
+		sr.Records = append(sr.Records, TransformSearchResultToRecord(rec))
+	}
+	return nil
+}
 
+// TransformSearchResultToRecord
+func TransformSearchResultToRecord(rec *bleveSearch.DocumentMatch) metadata.Record {
 	mr := metadata.Record{
 		Identifier: fmt.Sprintf("%v", rec.Fields["Identifier"]),
 		Type:       fmt.Sprintf("%v", rec.Fields["Type"]),
@@ -172,6 +173,5 @@ func (r *BleveRepository) Get(identifier string, sr *search.SearchResults) error
 		Abstract:   fmt.Sprintf("%v", rec.Fields["Abstract"]),
 		Language:   fmt.Sprintf("%v", rec.Fields["Language"]),
 	}
-	sr.Records = append(sr.Records, mr)
-	return nil
+	return mr
 }

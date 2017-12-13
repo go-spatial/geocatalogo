@@ -27,6 +27,8 @@ vi local.env  # update accordingly
 
 ## Running
 
+### Using the geocatalogo command line utility
+
 ```bash
 # list commands
 geocatalogo
@@ -43,12 +45,18 @@ geocatalogo search --term=landsat
 # get a metadata record by id
 geocatalogo get --id=12345
 
+# get a metadata record by list of ids
+geocatalogo get --id=12345,67890
+
 # get version
 geocatalogo version
 ```
 
 ### Using the API
 
+### Running a web server
+```bash
+geocatalogo-server
 TODO
 
 ## Development

@@ -30,6 +30,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	_ "net/http/pprof"
+	"os"
 	"strconv"
 	"strings"
 
@@ -42,7 +44,7 @@ var mycatalogo = geocatalogo.New()
 func handler(w http.ResponseWriter, r *http.Request) {
 	var q string
 	var recordids []string
-	var startPosition int = 0
+	var startPosition int
 	var maxRecords int = 10
 	var value []string
 	var results search.SearchResults
@@ -86,7 +88,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(recordids) > 0 {
-		results = mycatalogo.Get(recordids[0])
+		results = mycatalogo.Get(recordids)
 	}
 
 	b, err := json.MarshalIndent(results, "", "    ")
@@ -100,6 +102,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	var port int = 8000
+	if len(os.Args) > 1 {
+		port, _ = strconv.Atoi(os.Args[1])
+	}
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8000", nil)
+	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }

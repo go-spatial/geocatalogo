@@ -33,6 +33,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"flag"
@@ -73,7 +74,7 @@ func main() {
 	sizeFlag := searchCommand.Int("size", 10, "Number of results to return (default=10)")
 
 	getCommand := flag.NewFlagSet("get", flag.ExitOnError)
-	idFlag := getCommand.String("id", "", "identifier")
+	idFlag := getCommand.String("id", "", "list of identifiers (comma-separated)")
 
 	versionCommand := flag.NewFlagSet("version", flag.ExitOnError)
 
@@ -183,7 +184,8 @@ func main() {
 			fmt.Println("Please provide identifier")
 			os.Exit(6)
 		}
-		results := mycatalogo.Get(*idFlag)
+		recordids := strings.Split(*idFlag, ",")
+		results := mycatalogo.Get(recordids)
 		for _, result := range results.Records {
 			b, _ := json.MarshalIndent(result, "", "    ")
 			fmt.Printf("%s\n", b)
