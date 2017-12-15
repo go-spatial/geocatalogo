@@ -70,7 +70,7 @@ func main() {
 
 	searchCommand := flag.NewFlagSet("search", flag.ExitOnError)
 	termFlag := searchCommand.String("term", "", "Search term(s)")
-	fromFlag := searchCommand.Int("from", 1, "Start position / offset (default=1)")
+	fromFlag := searchCommand.Int("from", 0, "Start position / offset (default=0)")
 	sizeFlag := searchCommand.Int("size", 10, "Number of results to return (default=10)")
 
 	getCommand := flag.NewFlagSet("get", flag.ExitOnError)
@@ -91,7 +91,7 @@ func main() {
 		versionCommand.Parse(os.Args[2:])
 	default:
 		fmt.Printf("%q is not valid command.\n", os.Args[1])
-		os.Exit(2)
+		os.Exit(10001)
 	}
 
 	if versionCommand.Parsed() {
@@ -106,9 +106,9 @@ func main() {
 
 		testConfig := config.LoadFromEnv()
 
-		status := repository.New(testConfig, testLog)
+		err := repository.New(testConfig, testLog)
 
-		if !status {
+		if err != nil {
 			fmt.Println("Repository not created")
 		} else {
 			fmt.Println("Repository created")
@@ -116,16 +116,21 @@ func main() {
 		return
 	}
 
-	mycatalogo := geocatalogo.New()
+	mycatalogo, err := geocatalogo.NewFromEnv()
+
+	if err != nil {
+		fmt.Println("Could not start geocatalogo: %s\n", err)
+		os.Exit(10002)
+	}
 
 	if indexCommand.Parsed() {
 		if *fileFlag == "" && *dirFlag == "" {
 			fmt.Println("Please supply path to metadata file(s) via -file or -dir")
-			os.Exit(3)
+			os.Exit(10003)
 		}
 		if *fileFlag != "" && *dirFlag != "" {
 			fmt.Println("Only one of -file or -dir is allowed")
-			os.Exit(4)
+			os.Exit(10004)
 		}
 		if *fileFlag != "" {
 			fileList = append(fileList, *fileFlag)
@@ -147,16 +152,21 @@ func main() {
 		fmt.Printf("Indexing %d file%s\n", len(fileList), plural)
 
 		for _, file := range fileList {
+			if fileCounter == 10 {
+				os.Exit(10000)
+			}
 			start := time.Now()
 			parseStart := time.Now()
 			fmt.Printf("Indexing file %d of %d: %q\n", fileCounter, fileCount, file)
 			source, err := ioutil.ReadFile(file)
 			if err != nil {
-				panic(err)
+				fmt.Printf("Could not read file: %s\n", err)
+				continue
 			}
 			metadataRecord, err := parsers.ParseCSWRecord(source)
 			if err != nil {
-				panic(err)
+				fmt.Printf("Could not parse metadata: %s\n", err)
+				continue
 			}
 			parseElapsed := time.Since(parseStart)
 			indexStart := time.Now()
@@ -172,7 +182,7 @@ func main() {
 	} else if searchCommand.Parsed() {
 		if *termFlag == "" {
 			fmt.Println("Please provide search term")
-			os.Exit(5)
+			os.Exit(10005)
 		}
 		results := mycatalogo.Search(*termFlag, *fromFlag, *sizeFlag)
 		fmt.Printf("Found %d records\n", results.Matches)
@@ -182,7 +192,7 @@ func main() {
 	} else if getCommand.Parsed() {
 		if *idFlag == "" {
 			fmt.Println("Please provide identifier")
-			os.Exit(6)
+			os.Exit(10006)
 		}
 		recordids := strings.Split(*idFlag, ",")
 		results := mycatalogo.Get(recordids)

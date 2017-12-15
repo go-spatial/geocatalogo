@@ -26,6 +26,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -40,8 +41,8 @@ import (
 	"github.com/tomkralidis/geocatalogo/search"
 )
 
-// BleveRepository provides an object model for repository.
-type BleveRepository struct {
+// Bleve provides an object model for repository.
+type Bleve struct {
 	Type     string
 	URL      string
 	Mappings map[string]string
@@ -49,7 +50,7 @@ type BleveRepository struct {
 }
 
 // New creates a repository
-func New(cfg config.Config, log *logrus.Logger) bool {
+func New(cfg config.Config, log *logrus.Logger) error {
 
 	kvconfig := map[string]interface{}{
 		"mossLowerLevelStoreName": "mossStore",
@@ -63,22 +64,23 @@ func New(cfg config.Config, log *logrus.Logger) bool {
 	index, err := bleve.NewUsing(cfg.Repository.URL, mapping, upsidedown.Name, moss.Name, kvconfig)
 
 	if err != nil {
-		log.Errorf("Cannot create repository: %v\n", err)
-		return false
+		errorText := fmt.Sprintf("Cannot create repository: %v\n", err)
+		log.Errorf(errorText)
+		return errors.New(errorText)
 	}
 	log.Debug("Persisting moss kv index")
 	time.Sleep(30 * time.Second)
 	index.Close()
 
-	return true
+	return nil
 }
 
 // Open loads a repository
-func Open(cfg config.Config, log *logrus.Logger) BleveRepository {
+func Open(cfg config.Config, log *logrus.Logger) (Bleve, error) {
 	log.Debug("Loading Repository" + cfg.Repository.URL)
 	log.Debug("Type: " + cfg.Repository.Type)
 	log.Debug("URL: " + cfg.Repository.URL)
-	s := BleveRepository{
+	s := Bleve{
 		Type:     cfg.Repository.Type,
 		URL:      cfg.Repository.URL,
 		Mappings: cfg.Repository.Mappings,
@@ -87,31 +89,30 @@ func Open(cfg config.Config, log *logrus.Logger) BleveRepository {
 	index, err := bleve.Open(cfg.Repository.URL)
 
 	if err != nil {
-		panic(err)
+		return s, err
 	}
 	s.Index = index
 
-	return s
+	return s, nil
 }
 
 // Insert inserts a record into the repository
-func (r *BleveRepository) Insert(record metadata.Record) error {
-	err := r.Index.Index(record.Identifier, record)
-	return err
+func (r *Bleve) Insert(record metadata.Record) error {
+	return r.Index.Index(record.Identifier, record)
 }
 
 // Update updates a record into the repository
-func (r *BleveRepository) Update() bool {
+func (r *Bleve) Update() bool {
 	return true
 }
 
 // Delete deletes a record into the repository
-func (r *BleveRepository) Delete() bool {
+func (r *Bleve) Delete() bool {
 	return true
 }
 
 // Query performs a search against the repository
-func (r *BleveRepository) Query(term string, sr *search.SearchResults, from int, size int) error {
+func (r *Bleve) Query(term string, sr *search.Results, from int, size int) error {
 	query := bleve.NewQueryStringQuery(term)
 
 	searchRequest := bleve.NewSearchRequest(query)
@@ -138,13 +139,13 @@ func (r *BleveRepository) Query(term string, sr *search.SearchResults, from int,
 	}
 
 	for _, rec := range searchResult.Hits {
-		sr.Records = append(sr.Records, TransformSearchResultToRecord(rec))
+		sr.Records = append(sr.Records, transformResultToRecord(rec))
 	}
 	return nil
 }
 
 // Get gets specified metadata records from the repository
-func (r *BleveRepository) Get(identifiers []string, sr *search.SearchResults) error {
+func (r *Bleve) Get(identifiers []string, sr *search.Results) error {
 	query := bleve.NewDocIDQuery(identifiers)
 	searchRequest := bleve.NewSearchRequest(query)
 	searchRequest.Fields = []string{"*"}
@@ -159,20 +160,26 @@ func (r *BleveRepository) Get(identifiers []string, sr *search.SearchResults) er
 	sr.Records = make([]metadata.Record, 0)
 
 	for _, rec := range searchResult.Hits {
-		sr.Records = append(sr.Records, TransformSearchResultToRecord(rec))
+		sr.Records = append(sr.Records, transformResultToRecord(rec))
 	}
 	return nil
 }
 
-// TransformSearchResultToRecord provides a helper function to transform a
+// transformResultToRecord provides a helper function to transform a
 // bleveSearch.DocumentMatch result to a metadata.Record
-func TransformSearchResultToRecord(rec *bleveSearch.DocumentMatch) metadata.Record {
+func transformResultToRecord(rec *bleveSearch.DocumentMatch) metadata.Record {
 	mr := metadata.Record{
 		Identifier: fmt.Sprintf("%v", rec.Fields["Identifier"]),
 		Type:       fmt.Sprintf("%v", rec.Fields["Type"]),
 		Title:      fmt.Sprintf("%v", rec.Fields["Title"]),
 		Abstract:   fmt.Sprintf("%v", rec.Fields["Abstract"]),
 		Language:   fmt.Sprintf("%v", rec.Fields["Language"]),
+	}
+	if rec.Fields["Extent.Spatial"] != nil {
+		mr.Extent.Spatial.Minx = rec.Fields["Extent.Spatial.Minx"].(float64)
+		mr.Extent.Spatial.Miny = rec.Fields["Extent.Spatial.Miny"].(float64)
+		mr.Extent.Spatial.Maxx = rec.Fields["Extent.Spatial.Maxx"].(float64)
+		mr.Extent.Spatial.Maxy = rec.Fields["Extent.Spatial.Maxy"].(float64)
 	}
 	return mr
 }

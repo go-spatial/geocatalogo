@@ -39,7 +39,7 @@ import (
 	"github.com/tomkralidis/geocatalogo/search"
 )
 
-var mycatalogo = geocatalogo.New()
+var mycatalogo, _ = geocatalogo.NewFromEnv()
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	var q string
@@ -47,26 +47,30 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	var startPosition int
 	var maxRecords int = 10
 	var value []string
-	var results search.SearchResults
+	var results search.Results
 
-	query := r.URL.Query()
+	kvp := make(map[string][]string)
 
-	value, _ = query["startPosition"]
+	for k, v := range r.URL.Query() {
+		kvp[strings.ToLower(k)] = v
+	}
+
+	value, _ = kvp["startposition"]
 	if len(value) > 0 {
 		startPosition, _ = strconv.Atoi(value[0])
 	}
 
-	value, _ = query["maxRecords"]
+	value, _ = kvp["maxrecords"]
 	if len(value) > 0 {
 		maxRecords, _ = strconv.Atoi(value[0])
 	}
 
-	value, _ = query["q"]
+	value, _ = kvp["q"]
 	if len(value) > 0 {
 		q = value[0]
 	}
 
-	value, _ = query["recordids"]
+	value, _ = kvp["recordids"]
 	if len(value) > 0 {
 		recordids = strings.Split(value[0], ",")
 	}

@@ -29,8 +29,8 @@ import (
 	"github.com/tomkralidis/geocatalogo/metadata"
 )
 
-// SearchResults provides the search result structure
-type SearchResults struct {
+// Results provides the search result structure
+type Results struct {
 	ElapsedTime int
 	Matches     int
 	Returned    int

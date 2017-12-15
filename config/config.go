@@ -169,15 +169,15 @@ func LoadFromEnv() Config {
 }
 
 // LoadFromFile read YAML into configuration
-func LoadFromFile(filename string) Config {
+func LoadFromFile(filename string) (Config, error) {
 	var cfg Config
 	source, err := ioutil.ReadFile(filename)
 	if err != nil {
-		panic(err)
+		return cfg, err
 	}
 	err = yaml.Unmarshal(source, &cfg)
 	if err != nil {
-		panic(err)
+		return cfg, err
 	}
-	return cfg
+	return cfg, nil
 }

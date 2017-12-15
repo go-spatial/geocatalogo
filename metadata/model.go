@@ -44,9 +44,21 @@ type date struct {
 	Value string
 }
 
+type Spatial struct {
+	Minx float64
+	Miny float64
+	Maxx float64
+	Maxy float64
+}
+
+type Temporal struct {
+	begin time.Time `json:",omitempty"`
+	end   time.Time `json:",omitempty"`
+}
+
 type extent struct {
-	Spatial  [4]float64 // minx, miny, maxx, maxy
-	Temporal [2]time.Time
+	Spatial  Spatial  `json:",omitempty"`
+	Temporal Temporal `json:",omitempty"`
 }
 
 type link struct {
@@ -70,6 +82,6 @@ type Record struct {
 	Dates        []date     `json:",omitempty"`
 	License      string     `json:",omitempty"`
 	Language     string     `json:",omitempty"`
-	Extents      []extent   `json:",omitempty"`
+	Extent       extent     `json:",omitempty"`
 	Links        []link     `json:",omitempty"`
 }

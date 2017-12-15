@@ -46,14 +46,14 @@ var log = logrus.New()
 // GeoCatalogue provides the core structure
 type GeoCatalogue struct {
 	Config     config.Config
-	Repository repository.BleveRepository
+	Repository repository.Bleve
 }
 
 // New provides the initializing functionality
-func New() GeoCatalogue {
+func New(cfg *config.Config) (GeoCatalogue, error) {
 
 	c := GeoCatalogue{}
-	c.Config = config.LoadFromEnv()
+	c.Config = *cfg
 
 	// setup logging
 	InitLog(&c.Config, log)
@@ -62,9 +62,20 @@ func New() GeoCatalogue {
 	log.Info("Configuration: " + os.Getenv("GEOCATALOGO_CONFIG"))
 
 	log.Info("Loading repository")
-	c.Repository = repository.Open(c.Config, log)
+	repo, err := repository.Open(c.Config, log)
+	if err != nil {
+		return c, err
+	}
+	c.Repository = repo
 
-	return c
+	return c, nil
+}
+
+// NewFromEnv provides the initializing functionality
+// using configuration from the environment
+func NewFromEnv() (GeoCatalogue, error) {
+	cfg := config.LoadFromEnv()
+	return New(&cfg)
 }
 
 // Index adds a metadata record to the Index
@@ -84,8 +95,8 @@ func (c *GeoCatalogue) UnIndex() bool {
 }
 
 // Search performs a search/query against the Index
-func (c *GeoCatalogue) Search(term string, from int, size int) search.SearchResults {
-	sr := search.SearchResults{}
+func (c *GeoCatalogue) Search(term string, from int, size int) search.Results {
+	sr := search.Results{}
 	log.Info("Searching index")
 	err := c.Repository.Query(term, &sr, from, size)
 	if err != nil {
@@ -95,8 +106,8 @@ func (c *GeoCatalogue) Search(term string, from int, size int) search.SearchResu
 }
 
 // Get retrieves a single metadata record from the Index
-func (c *GeoCatalogue) Get(identifiers []string) search.SearchResults {
-	sr := search.SearchResults{}
+func (c *GeoCatalogue) Get(identifiers []string) search.Results {
+	sr := search.Results{}
 	log.Info("Searching index")
 	err := c.Repository.Get(identifiers, &sr)
 	if err != nil {
