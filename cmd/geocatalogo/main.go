@@ -116,7 +116,7 @@ func main() {
 		return
 	}
 
-	mycatalogo, err := geocatalogo.NewFromEnv()
+	cat, err := geocatalogo.NewFromEnv()
 
 	if err != nil {
 		fmt.Println("Could not start geocatalogo: %s\n", err)
@@ -170,7 +170,7 @@ func main() {
 			}
 			parseElapsed := time.Since(parseStart)
 			indexStart := time.Now()
-			result := mycatalogo.Index(metadataRecord)
+			result := cat.Index(metadataRecord)
 			if !result {
 				fmt.Println("Error Indexing")
 			}
@@ -184,7 +184,7 @@ func main() {
 			fmt.Println("Please provide search term")
 			os.Exit(10005)
 		}
-		results := mycatalogo.Search(*termFlag, *fromFlag, *sizeFlag)
+		results := cat.Search(*termFlag, *fromFlag, *sizeFlag)
 		fmt.Printf("Found %d records\n", results.Matches)
 		for _, result := range results.Records {
 			fmt.Printf("    %s - %s\n", result.Identifier, result.Title)
@@ -195,7 +195,7 @@ func main() {
 			os.Exit(10006)
 		}
 		recordids := strings.Split(*idFlag, ",")
-		results := mycatalogo.Get(recordids)
+		results := cat.Get(recordids)
 		for _, result := range results.Records {
 			b, _ := json.MarshalIndent(result, "", "    ")
 			fmt.Printf("%s\n", b)

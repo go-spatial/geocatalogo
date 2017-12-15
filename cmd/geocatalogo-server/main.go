@@ -39,7 +39,7 @@ import (
 	"github.com/tomkralidis/geocatalogo/search"
 )
 
-var mycatalogo, _ = geocatalogo.NewFromEnv()
+var cat, _ = geocatalogo.NewFromEnv()
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	var q string
@@ -88,11 +88,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if q != "" {
-		results = mycatalogo.Search(q, startPosition, maxRecords)
+		results = cat.Search(q, startPosition, maxRecords)
 	}
 
 	if len(recordids) > 0 {
-		results = mycatalogo.Get(recordids)
+		results = cat.Get(recordids)
 	}
 
 	b, err := json.MarshalIndent(results, "", "    ")

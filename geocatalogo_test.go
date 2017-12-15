@@ -17,16 +17,16 @@ func init() {
 	testConfig := config.LoadFromEnv()
 	fmt.Println("creating new repo")
 
-	status := repository.New(testConfig, testLog)
+	err := repository.New(testConfig, testLog)
 
-	if !status {
+	if err != nil {
 		fmt.Println("Repository not created")
 	}
 }
 
 func TestSmokeTest(t *testing.T) {
-	mycatalogo := geocatalogo.New()
-	if mycatalogo.Config.Server.URL != "http://localhost:8001/" {
+	cat, _ := geocatalogo.NewFromEnv()
+	if cat.Config.Server.URL != "http://localhost:8001/" {
 		t.Error("Incorrect value")
 	}
 }
