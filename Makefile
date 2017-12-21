@@ -46,6 +46,6 @@ test:
 	go test ./... -v
 
 vet:
-	go vet
+	go vet ./...
 
 .PHONY: all build clean format install test vet

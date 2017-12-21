@@ -119,7 +119,7 @@ func main() {
 	cat, err := geocatalogo.NewFromEnv()
 
 	if err != nil {
-		fmt.Println("Could not start geocatalogo: %s\n", err)
+		fmt.Println(err)
 		os.Exit(10002)
 	}
 

@@ -45,7 +45,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	var q string
 	var recordids []string
 	var startPosition int
-	var maxRecords int = 10
+	var maxRecords = 10
 	var value []string
 	var results search.Results
 
@@ -106,7 +106,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	var port int = 8000
+	var port = 8000
 	if len(os.Args) > 1 {
 		port, _ = strconv.Atoi(os.Args[1])
 	}

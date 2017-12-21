@@ -44,6 +44,7 @@ type date struct {
 	Value string
 }
 
+// Spatial describes bounding geometry
 type Spatial struct {
 	Minx float64
 	Miny float64
@@ -51,9 +52,10 @@ type Spatial struct {
 	Maxy float64
 }
 
+// Temporal describes temporal bounds
 type Temporal struct {
-	begin time.Time `json:",omitempty"`
-	end   time.Time `json:",omitempty"`
+	Begin time.Time `json:",omitempty"`
+	End   time.Time `json:",omitempty"`
 }
 
 type extent struct {
