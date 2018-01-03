@@ -24,24 +24,22 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // Package main - simple HTTP Wrapper
-package main
+package geocatalogo
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
-	"os"
 	"strconv"
 	"strings"
 
-	"github.com/tomkralidis/geocatalogo"
 	"github.com/tomkralidis/geocatalogo/search"
 )
 
-var cat, _ = geocatalogo.NewFromEnv()
+var cat, _ = NewFromEnv()
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func Handler(w http.ResponseWriter, r *http.Request) {
 	var q string
 	var recordids []string
 	var startPosition int
@@ -103,13 +101,4 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintf(w, "%s", b)
-}
-
-func main() {
-	var port = 8000
-	if len(os.Args) > 1 {
-		port, _ = strconv.Atoi(os.Args[1])
-	}
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }

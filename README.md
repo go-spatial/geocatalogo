@@ -48,15 +48,17 @@ geocatalogo get --id=12345
 # get a metadata record by list of ids
 geocatalogo get --id=12345,67890
 
+# run as an HTTP server (default port 8000)
+geocatalogo serve
+# run as an HTTP server on a custom port
+geocatalogo serve -port 8001
+
 # get version
 geocatalogo version
 ```
 
 ### Using the API
 
-### Running a web server
-```bash
-geocatalogo-server
 TODO
 
 ## Development

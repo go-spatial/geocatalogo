@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -45,7 +46,6 @@ import (
 )
 
 func main() {
-
 	var plural = ""
 	var fileCount = 0
 	var fileCounter = 0
@@ -58,6 +58,7 @@ func main() {
 		fmt.Println(" index: add a metadata record to the index")
 		fmt.Println(" search: search the index")
 		fmt.Println(" get: get metadata record by id")
+		fmt.Println(" serve: run web server")
 		fmt.Println(" version: geocatalogo version")
 		return
 	}
@@ -76,6 +77,9 @@ func main() {
 	getCommand := flag.NewFlagSet("get", flag.ExitOnError)
 	idFlag := getCommand.String("id", "", "list of identifiers (comma-separated)")
 
+	serveCommand := flag.NewFlagSet("serve", flag.ExitOnError)
+	portFlag := serveCommand.Int("port", 8000, "port")
+
 	versionCommand := flag.NewFlagSet("version", flag.ExitOnError)
 
 	switch os.Args[1] {
@@ -87,6 +91,8 @@ func main() {
 		searchCommand.Parse(os.Args[2:])
 	case "get":
 		getCommand.Parse(os.Args[2:])
+	case "serve":
+		serveCommand.Parse(os.Args[2:])
 	case "version":
 		versionCommand.Parse(os.Args[2:])
 	default:
@@ -189,10 +195,17 @@ func main() {
 		for _, result := range results.Records {
 			fmt.Printf("    %s - %s\n", result.Identifier, result.Title)
 		}
+	} else if serveCommand.Parsed() {
+		fmt.Printf("Serving on port %d\n", *portFlag)
+		http.HandleFunc("/", geocatalogo.Handler)
+		if err := http.ListenAndServe(fmt.Sprintf(":%d", *portFlag), nil); err != nil {
+			fmt.Println(err)
+			os.Exit(10006)
+		}
 	} else if getCommand.Parsed() {
 		if *idFlag == "" {
 			fmt.Println("Please provide identifier")
-			os.Exit(10006)
+			os.Exit(10007)
 		}
 		recordids := strings.Split(*idFlag, ",")
 		results := cat.Get(recordids)
