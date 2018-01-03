@@ -37,9 +37,7 @@ import (
 	"github.com/tomkralidis/geocatalogo/search"
 )
 
-var cat, _ = NewFromEnv()
-
-func Handler(w http.ResponseWriter, r *http.Request) {
+func Handler(w http.ResponseWriter, r *http.Request, cat GeoCatalogue) {
 	var q string
 	var recordids []string
 	var startPosition int

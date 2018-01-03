@@ -197,7 +197,9 @@ func main() {
 		}
 	} else if serveCommand.Parsed() {
 		fmt.Printf("Serving on port %d\n", *portFlag)
-		http.HandleFunc("/", geocatalogo.Handler)
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			geocatalogo.Handler(w, r, cat)
+		})
 		if err := http.ListenAndServe(fmt.Sprintf(":%d", *portFlag), nil); err != nil {
 			fmt.Println(err)
 			os.Exit(10006)
