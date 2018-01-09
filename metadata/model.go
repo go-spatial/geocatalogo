@@ -44,23 +44,10 @@ type date struct {
 	Value string
 }
 
-// Spatial describes bounding geometry
-type Spatial struct {
-	Minx float64
-	Miny float64
-	Maxx float64
-	Maxy float64
-}
-
 // Temporal describes temporal bounds
 type Temporal struct {
-	Begin time.Time `json:",omitempty"`
-	End   time.Time `json:",omitempty"`
-}
-
-type extent struct {
-	Spatial  Spatial  `json:",omitempty"`
-	Temporal Temporal `json:",omitempty"`
+	Begin *time.Time `json:"begin,omitempty"`
+	End   *time.Time `json:"end,omitempty"`
 }
 
 type link struct {
@@ -70,20 +57,37 @@ type link struct {
 	URL         string
 }
 
+type geometry struct {
+	Type        string       `json:"type"`
+	Coordinates [][2]float64 `json:"coordinates"`
+}
+
+type geocatalogo struct {
+	Inserted time.Time `json:"inserted"`
+	Source   string    `json:"source"`
+	Schema   string    `json:"schema,omitempty"`
+}
+
+type properties struct {
+	Identifier     string      `json:"identifier"`
+	Title          string      `json:"title,omitempty"`
+	Type           string      `json:"type,omitempty"`
+	Created        *time.Time  `json:"created,omitempty"`
+	Modified       *time.Time  `json:"modified,omitempty"`
+	Abstract       string      `json:"abstract,omitempty"`
+	KeywordsSets   []keywords  `json:"keywords,omitempty"`
+	Contacts       []contact   `json:"contact,omitempty"`
+	Dates          []date      `json:"dates,omitempty"`
+	License        string      `json:"license,omitempty"`
+	Language       string      `json:"language,omitempty"`
+	TemporalExtent *Temporal   `json:"temporal_extent,omitempty"`
+	Links          []link      `json:"links,omitempty"`
+	Geocatalogo    geocatalogo `json:"_geocatalogo,omitempty"`
+}
+
 // Record describes a generic metadata record
 type Record struct {
-	Identifier   string
-	Title        string     `json:",omitempty"`
-	Type         string     `json:",omitempty"`
-	DateInserted time.Time  `json:",omitempty"`
-	DateModified time.Time  `json:",omitempty"`
-	Schema       string     `json:",omitempty"`
-	Abstract     string     `json:",omitempty"`
-	KeywordsSets []keywords `json:",omitempty"`
-	Contacts     []contact  `json:",omitempty"`
-	Dates        []date     `json:",omitempty"`
-	License      string     `json:",omitempty"`
-	Language     string     `json:",omitempty"`
-	Extent       extent     `json:",omitempty"`
-	Links        []link     `json:",omitempty"`
+	Type       string     `json:"type"`
+	Geometry   geometry   `json:"geometry"`
+	Properties properties `json:"properties"`
 }

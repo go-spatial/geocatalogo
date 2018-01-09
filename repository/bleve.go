@@ -98,7 +98,8 @@ func Open(cfg config.Config, log *logrus.Logger) (Bleve, error) {
 
 // Insert inserts a record into the repository
 func (r *Bleve) Insert(record metadata.Record) error {
-	return r.Index.Index(record.Identifier, record)
+	record.Properties.Geocatalogo.Inserted = time.Now()
+	return r.Index.Index(record.Properties.Identifier, record)
 }
 
 // Update updates a record into the repository
@@ -168,18 +169,37 @@ func (r *Bleve) Get(identifiers []string, sr *search.Results) error {
 // transformResultToRecord provides a helper function to transform a
 // bleveSearch.DocumentMatch result to a metadata.Record
 func transformResultToRecord(rec *bleveSearch.DocumentMatch) metadata.Record {
-	mr := metadata.Record{
-		Identifier: fmt.Sprintf("%v", rec.Fields["Identifier"]),
-		Type:       fmt.Sprintf("%v", rec.Fields["Type"]),
-		Title:      fmt.Sprintf("%v", rec.Fields["Title"]),
-		Abstract:   fmt.Sprintf("%v", rec.Fields["Abstract"]),
-		Language:   fmt.Sprintf("%v", rec.Fields["Language"]),
+	var ll [2]float64
+	var ul [2]float64
+	var ur [2]float64
+	var lr [2]float64
+
+	mr := metadata.Record{}
+	mr.Type = fmt.Sprintf("%v", rec.Fields["type"])
+
+	if rec.Fields["geometry.coordinates"] != nil {
+		mr.Geometry.Type = fmt.Sprintf("%v", rec.Fields["geometry.type"])
+		coords := rec.Fields["geometry.coordinates"].([]interface{})
+		ll[0] = coords[0].(float64)
+		ll[1] = coords[1].(float64)
+		ul[0] = coords[2].(float64)
+		ul[1] = coords[3].(float64)
+		ur[0] = coords[4].(float64)
+		ur[1] = coords[5].(float64)
+		lr[0] = coords[6].(float64)
+		lr[1] = coords[7].(float64)
+
+		mr.Geometry.Coordinates = [][2]float64{ll, ul, ur, lr, ll}
 	}
-	if rec.Fields["Extent.Spatial"] != nil {
-		mr.Extent.Spatial.Minx = rec.Fields["Extent.Spatial.Minx"].(float64)
-		mr.Extent.Spatial.Miny = rec.Fields["Extent.Spatial.Miny"].(float64)
-		mr.Extent.Spatial.Maxx = rec.Fields["Extent.Spatial.Maxx"].(float64)
-		mr.Extent.Spatial.Maxy = rec.Fields["Extent.Spatial.Maxy"].(float64)
-	}
+
+	mr.Properties.Identifier = fmt.Sprintf("%v", rec.Fields["properties.identifier"])
+	mr.Properties.Type = fmt.Sprintf("%v", rec.Fields["properties.type"])
+	mr.Properties.Title = fmt.Sprintf("%v", rec.Fields["properties.title"])
+	mr.Properties.Abstract = fmt.Sprintf("%v", rec.Fields["properties.abstract"])
+	mr.Properties.Language = fmt.Sprintf("%v", rec.Fields["properties.language"])
+
+	mr.Properties.Geocatalogo.Source = fmt.Sprintf("%v", rec.Fields["properties._geocatalogo.source"])
+	mr.Properties.Geocatalogo.Inserted, _ = time.Parse(time.RFC3339, fmt.Sprintf("%v", rec.Fields["properties._geocatalogo.inserted"]))
+
 	return mr
 }

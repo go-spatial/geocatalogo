@@ -71,13 +71,18 @@ func (e *boundingBox) Maxy() (float64, error) {
 }
 
 // BBox generates a list of minx,miny,maxx,maxy
-func (e *boundingBox) BBox() metadata.Spatial {
-	bbox := metadata.Spatial{}
-	bbox.Minx, _ = e.Minx()
-	bbox.Miny, _ = e.Miny()
-	bbox.Maxx, _ = e.Maxx()
-	bbox.Maxy, _ = e.Maxy()
-	return bbox
+func (e *boundingBox) BBox() [][2]float64 {
+	minx, _ := e.Minx()
+	miny, _ := e.Miny()
+	maxx, _ := e.Maxx()
+	maxy, _ := e.Maxy()
+	var a = [][2]float64{
+		{minx, miny},
+		{minx, maxy},
+		{maxx, maxy},
+		{maxx, miny},
+		{minx, miny}}
+	return a
 }
 
 // ParseCSWRecord parses CSWRecord
@@ -94,17 +99,21 @@ func ParseCSWRecord(xmlBuffer []byte) (metadata.Record, error) {
 		return metadataRecord, err
 	}
 
-	metadataRecord = metadata.Record{
-		Identifier: cswRecord.Identifier,
-		Type:       cswRecord.Type,
-		Title:      cswRecord.Title,
-		Abstract:   cswRecord.Abstract,
-	}
+	metadataRecord = metadata.Record{}
+	metadataRecord.Type = "Feature"
+	metadataRecord.Properties.Identifier = cswRecord.Identifier
+	metadataRecord.Properties.Type = cswRecord.Type
+	metadataRecord.Properties.Title = cswRecord.Title
+	metadataRecord.Properties.Abstract = cswRecord.Abstract
+	metadataRecord.Geometry.Type = "Polygon"
+
 	if (cswRecord.WGS84BoundingBox != boundingBox{}) {
-		metadataRecord.Extent.Spatial = cswRecord.WGS84BoundingBox.BBox()
+		metadataRecord.Geometry.Coordinates = cswRecord.WGS84BoundingBox.BBox()
 	} else if (cswRecord.BoundingBox != boundingBox{}) {
-		metadataRecord.Extent.Spatial = cswRecord.BoundingBox.BBox()
+		metadataRecord.Geometry.Coordinates = cswRecord.BoundingBox.BBox()
 	}
+
+	metadataRecord.Properties.Geocatalogo.Source = "local"
 
 	return metadataRecord, nil
 }

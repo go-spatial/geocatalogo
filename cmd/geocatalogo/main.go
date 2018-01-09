@@ -48,7 +48,7 @@ import (
 func main() {
 	var plural = ""
 	var fileCount = 0
-	var fileCounter = 0
+	var fileCounter = 1
 	fileList := []string{}
 
 	if len(os.Args) == 1 {
@@ -158,9 +158,6 @@ func main() {
 		fmt.Printf("Indexing %d file%s\n", len(fileList), plural)
 
 		for _, file := range fileList {
-			if fileCounter == 10 {
-				os.Exit(10000)
-			}
 			start := time.Now()
 			parseStart := time.Now()
 			fmt.Printf("Indexing file %d of %d: %q\n", fileCounter, fileCount, file)
@@ -193,7 +190,7 @@ func main() {
 		results := cat.Search(*termFlag, *fromFlag, *sizeFlag)
 		fmt.Printf("Found %d records\n", results.Matches)
 		for _, result := range results.Records {
-			fmt.Printf("    %s - %s\n", result.Identifier, result.Title)
+			fmt.Printf("    %s - %s\n", result.Properties.Identifier, result.Properties.Title)
 		}
 	} else if serveCommand.Parsed() {
 		fmt.Printf("Serving on port %d\n", *portFlag)
