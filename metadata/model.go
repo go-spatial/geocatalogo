@@ -44,17 +44,31 @@ type date struct {
 	Value string
 }
 
+// ProductInfo describes product specific metadata
+// for example EO data
+type ProductInfo struct {
+	ProductIdentifier string     `json:"product_id,omitempty"`
+	SceneIdentifier   string     `json:"scene_id,omitempty"`
+	Path              uint64     `json:"path,omitempty"`
+	Row               uint64     `json:"row,omitempty"`
+	CloudCover        float64    `json:"cloud_cover,omitempty"`
+	AcquisitionDate   *time.Time `json:"acquisition_date,omitempty"`
+	ProcessingLevel   string     `json:"processing_level,omitempty"`
+	SensorIdentifier  string     `json:"sensor_id,omitempty"`
+	SensorId          string     `json:"sensor_id,omitempty"`
+}
+
 // Temporal describes temporal bounds
 type Temporal struct {
 	Begin *time.Time `json:"begin,omitempty"`
 	End   *time.Time `json:"end,omitempty"`
 }
 
-type link struct {
-	Name        string
-	Description string
-	Protocol    string
-	URL         string
+type Link struct {
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+	Protocol    string `json:"protocol,omitempty"`
+	URL         string `json:"url,omitempty"`
 }
 
 type geometry struct {
@@ -69,20 +83,21 @@ type geocatalogo struct {
 }
 
 type properties struct {
-	Identifier     string      `json:"identifier"`
-	Title          string      `json:"title,omitempty"`
-	Type           string      `json:"type,omitempty"`
-	Created        *time.Time  `json:"created,omitempty"`
-	Modified       *time.Time  `json:"modified,omitempty"`
-	Abstract       string      `json:"abstract,omitempty"`
-	KeywordsSets   []keywords  `json:"keywords,omitempty"`
-	Contacts       []contact   `json:"contact,omitempty"`
-	Dates          []date      `json:"dates,omitempty"`
-	License        string      `json:"license,omitempty"`
-	Language       string      `json:"language,omitempty"`
-	TemporalExtent *Temporal   `json:"temporal_extent,omitempty"`
-	Links          []link      `json:"links,omitempty"`
-	Geocatalogo    geocatalogo `json:"_geocatalogo,omitempty"`
+	Identifier     string       `json:"identifier"`
+	Title          string       `json:"title,omitempty"`
+	Type           string       `json:"type,omitempty"`
+	Created        *time.Time   `json:"created,omitempty"`
+	Modified       *time.Time   `json:"modified,omitempty"`
+	Abstract       string       `json:"abstract,omitempty"`
+	KeywordsSets   []keywords   `json:"keywords,omitempty"`
+	Contacts       []contact    `json:"contact,omitempty"`
+	Dates          []date       `json:"dates,omitempty"`
+	License        string       `json:"license,omitempty"`
+	Language       string       `json:"language,omitempty"`
+	TemporalExtent *Temporal    `json:"temporal_extent,omitempty"`
+	Links          []Link       `json:"links,omitempty"`
+	ProductInfo    *ProductInfo `json:"product_info,omitempty"`
+	Geocatalogo    geocatalogo  `json:"_geocatalogo,omitempty"`
 }
 
 // Record describes a generic metadata record

@@ -29,6 +29,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -158,6 +159,9 @@ func main() {
 		fmt.Printf("Indexing %d file%s\n", len(fileList), plural)
 
 		for _, file := range fileList {
+			if fileCounter == 100 {
+				os.Exit(1000111)
+			}
 			start := time.Now()
 			parseStart := time.Now()
 			fmt.Printf("Indexing file %d of %d: %q\n", fileCounter, fileCount, file)
@@ -196,6 +200,11 @@ func main() {
 		fmt.Printf("Serving on port %d\n", *portFlag)
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			geocatalogo.Handler(w, r, cat)
+		})
+		http.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			t, _ := template.ParseFiles(cat.Config.Metadata.Swagger.Spec)
+			t.Execute(w, cat.Config)
 		})
 		if err := http.ListenAndServe(fmt.Sprintf(":%d", *portFlag), nil); err != nil {
 			fmt.Println(err)

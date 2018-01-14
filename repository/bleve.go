@@ -28,6 +28,7 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/blevesearch/bleve"
@@ -198,7 +199,28 @@ func transformResultToRecord(rec *bleveSearch.DocumentMatch) metadata.Record {
 	mr.Properties.Abstract = fmt.Sprintf("%v", rec.Fields["properties.abstract"])
 	mr.Properties.Language = fmt.Sprintf("%v", rec.Fields["properties.language"])
 
+	product_id := fmt.Sprintf("%v", rec.Fields["properties.product_info.product_id"])
+	scene_id := fmt.Sprintf("%v", rec.Fields["properties.product_info.scene_id"])
+	acquisition_date, _ := time.Parse(time.RFC3339, fmt.Sprintf("%v", rec.Fields["properties.product_info.acquisition_date"]))
+	cloud_cover, _ := strconv.ParseFloat(fmt.Sprintf("%v", rec.Fields["properties.product_info.path"]), 64)
+	processing_level := fmt.Sprintf("%v", rec.Fields["properties.product_info.processing_level"])
+	path, _ := strconv.ParseUint(fmt.Sprintf("%v", rec.Fields["properties.product_info.path"]), 10, 64)
+	row, _ := strconv.ParseUint(fmt.Sprintf("%v", rec.Fields["properties.product_info.row"]), 10, 64)
+
+	pi := &metadata.ProductInfo{
+		ProductIdentifier: product_id,
+		SceneIdentifier:   scene_id,
+		AcquisitionDate:   &acquisition_date,
+		CloudCover:        cloud_cover,
+		ProcessingLevel:   processing_level,
+		Path:              path,
+		Row:               row,
+	}
+
+	mr.Properties.ProductInfo = pi
+
 	mr.Properties.Geocatalogo.Source = fmt.Sprintf("%v", rec.Fields["properties._geocatalogo.source"])
+	mr.Properties.Geocatalogo.Schema = fmt.Sprintf("%v", rec.Fields["properties._geocatalogo.schema"])
 	mr.Properties.Geocatalogo.Inserted, _ = time.Parse(time.RFC3339, fmt.Sprintf("%v", rec.Fields["properties._geocatalogo.inserted"]))
 
 	return mr
