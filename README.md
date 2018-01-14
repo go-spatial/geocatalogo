@@ -13,6 +13,10 @@ Geospatial Catalogue in Go
 ```bash
 # install dependencies
 go get golang.org/x/text/encoding
+go get github.com/sirupsen/logrus
+go get gopkg.in/yaml.v2
+go build ./...
+config/config.go:34:2: cannot find package "gopkg.in/yaml.v2"
 # install geocatalogo
 go get github.com/tomkralidis/geocatalogo/...
 # install utilities/helpers
@@ -23,6 +27,11 @@ go install github.com/golang/lint/...
 cp geocatalogo-config.env local.env
 vi local.env  # update accordingly
 . local.env
+
+# import the Landsat AWS scene list (https://aws.amazon.com/public-datasets/landsat/)
+wget http://landsat-pds.s3.amazonaws.com/c1/L8/scene_list.gz
+gunzip scene_list.gz
+$GOPATH/bin/landsat-aws-importer scene_list
 ```
 
 ## Running
@@ -59,7 +68,47 @@ geocatalogo version
 
 ### Using the API
 
-TODO
+```go
+// init a Geocatalogue from environment
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/tomkralidis/geocatalogo"
+	"github.com/tomkralidis/geocatalogo/metadata/parsers"
+)
+
+cat, err := geocatalogo.NewFromEnv()
+if err != nil {
+	fmt.Println(err)
+}
+
+// index a Dublin Core metadata record
+source, err := ioutil.ReadFile(file)
+if err != nil {
+	fmt.Printf("Could not read file: %s\n", err)
+}
+metadataRecord, err := parsers.ParseCSWRecord(source)
+if err != nil {
+	fmt.Printf("Could not parse metadata: %s\n", err)
+	continue
+}
+result := cat.Index(metadataRecord)
+if !result {
+	fmt.Println("Error Indexing")
+}
+
+// search records and present records 0 - 10
+results := cat.Search("birds", 0, 10)
+
+// get record by id
+results := cat.Get("record-id-123")
+
+// process results
+for _, result := range results.Records {
+	b, _ := json.MarshalIndent(result, "", "    ")
+	fmt.Printf("%s\n", b)
+}
+```
 
 ## Development
 
