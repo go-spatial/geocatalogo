@@ -3,6 +3,7 @@ package parsers
 import (
 	"bytes"
 	"encoding/xml"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -22,7 +23,7 @@ type CSWRecord struct {
 	Format           string      `xml:"http://purl.org/dc/elements/1.1/ format"`
 	Creator          string      `xml:"http://purl.org/dc/elements/1.1/ creator"`
 	Language         string      `xml:"http://purl.org/dc/elements/1.1/ language"`
-	References       []string    `xml:"http://purl.org/dc/elements/1.1/ references"`
+	References       []string    `xml:"http://purl.org/dc/terms/ references"`
 	WGS84BoundingBox boundingBox `xml:"http://www.opengis.net/ows WGS84BoundingBox"`
 	BoundingBox      boundingBox `xml:"http://www.opengis.net/ows BoundingBox"`
 }
@@ -81,7 +82,8 @@ func (e *boundingBox) BBox() [][2]float64 {
 		{minx, maxy},
 		{maxx, maxy},
 		{maxx, miny},
-		{minx, miny}}
+		{minx, miny},
+	}
 	return a
 }
 
@@ -107,12 +109,18 @@ func ParseCSWRecord(xmlBuffer []byte) (metadata.Record, error) {
 	metadataRecord.Properties.Abstract = cswRecord.Abstract
 	metadataRecord.Geometry.Type = "Polygon"
 
+	fmt.Println(cswRecord)
+	for _, ref := range cswRecord.References {
+		metadataRecord.Properties.Links = append(metadataRecord.Properties.Links, metadata.Link{URL: ref})
+	}
+
 	if (cswRecord.WGS84BoundingBox != boundingBox{}) {
 		metadataRecord.Geometry.Coordinates = cswRecord.WGS84BoundingBox.BBox()
 	} else if (cswRecord.BoundingBox != boundingBox{}) {
 		metadataRecord.Geometry.Coordinates = cswRecord.BoundingBox.BBox()
 	}
 
+	metadataRecord.Properties.Geocatalogo.Schema = "local"
 	metadataRecord.Properties.Geocatalogo.Source = "local"
 
 	return metadataRecord, nil
