@@ -99,7 +99,7 @@ func Handler(w http.ResponseWriter, r *http.Request, cat GeoCatalogue) {
 	}
 
 	if err != nil {
-		fmt.Fprintf(w, "ERROR serializing", err)
+		fmt.Fprintf(w, "ERROR serializing: %s", err)
 	}
 	w.Header().Set("Content-Type", cat.Config.Server.MimeType)
 	fmt.Fprintf(w, "%s", jsonBytes)
