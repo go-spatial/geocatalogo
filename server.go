@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // The MIT License (MIT)
-// Copyright (c) 2017 Tom Kralidis
+// Copyright (c) 2018 Tom Kralidis
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -98,5 +98,6 @@ func Handler(w http.ResponseWriter, r *http.Request, cat GeoCatalogue) {
 		fmt.Fprintf(w, "ERROR: %s", err)
 		return
 	}
+	w.Header().Set("Content-Type", cat.Config.Server.MimeType)
 	fmt.Fprintf(w, "%s", b)
 }
