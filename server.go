@@ -30,7 +30,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	_ "net/http/pprof"
 	"strconv"
 	"strings"
 
@@ -44,6 +43,8 @@ func Handler(w http.ResponseWriter, r *http.Request, cat GeoCatalogue) {
 	var maxRecords = 10
 	var value []string
 	var results search.Results
+	var jsonBytes []byte
+	var err error
 
 	kvp := make(map[string][]string)
 
@@ -91,13 +92,15 @@ func Handler(w http.ResponseWriter, r *http.Request, cat GeoCatalogue) {
 		results = cat.Get(recordids)
 	}
 
-	b, err := json.MarshalIndent(results, "", "    ")
+	if cat.Config.Server.PrettyPrint == true {
+		jsonBytes, err = json.MarshalIndent(results, "", "    ")
+	} else {
+		jsonBytes, err = json.Marshal(results)
+	}
 
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "ERROR: %s", err)
-		return
+		fmt.Fprintf(w, "ERROR serializing", err)
 	}
 	w.Header().Set("Content-Type", cat.Config.Server.MimeType)
-	fmt.Fprintf(w, "%s", b)
+	fmt.Fprintf(w, "%s", jsonBytes)
 }
