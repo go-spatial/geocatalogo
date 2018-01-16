@@ -43,7 +43,7 @@ import (
 func main() {
 	var acquisitionDateLayout = "2006-01-02 15:04:05"
 	if len(os.Args) == 1 {
-		fmt.Printf("Usage: %s </path/to/scene-list>\n", os.Args[0])
+		fmt.Printf("Usage: %s -file </path/to/scene-list>\n", os.Args[0])
 		return
 	}
 
