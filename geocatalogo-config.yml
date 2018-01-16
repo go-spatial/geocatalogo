@@ -66,8 +66,8 @@ metadata:
         role: pointOfContact
 
 repository:
-    type: bleve
-    url: ./metadata-index.bleve
+    type: elasticsearch
+    url: http://localhost:9200/metadata
     mappings:
         identifier: identifier
         type: type

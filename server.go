@@ -23,7 +23,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// Package main - simple HTTP Wrapper
+// Package geocatalogo - simple HTTP Wrapper
 package geocatalogo
 
 import (
@@ -36,7 +36,8 @@ import (
 	"github.com/tomkralidis/geocatalogo/search"
 )
 
-func Handler(w http.ResponseWriter, r *http.Request, cat GeoCatalogue) {
+// Handler provides a default HTTP API
+func Handler(w http.ResponseWriter, r *http.Request, cat *GeoCatalogue) {
 	var q string
 	var recordids []string
 	var startPosition int

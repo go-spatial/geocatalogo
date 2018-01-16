@@ -10,6 +10,11 @@ Geospatial Catalogue in Go
 
 ## Installation
 
+# Requirements
+
+geocatalogo's default backend is [Elasticsearch](https://www.elastic.co/) and
+requires an Elasticsearch endpoint as defined in configuration.
+
 ```bash
 # install dependencies
 go get golang.org/x/text/encoding
@@ -20,6 +25,9 @@ config/config.go:34:2: cannot find package "gopkg.in/yaml.v2"
 # install geocatalogo
 go get github.com/tomkralidis/geocatalogo/...
 # install utilities/helpers
+# default backend
+go get github.com/olivere/elastic
+# or bleve backend
 go get github.com/blevesearch/bleve/...
 go install github.com/golang/lint/...
 # set configuration

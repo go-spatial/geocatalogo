@@ -51,7 +51,7 @@ type Bleve struct {
 }
 
 // New creates a repository
-func New(cfg config.Config, log *logrus.Logger) error {
+func NewBleve(cfg config.Config, log *logrus.Logger) error {
 
 	kvconfig := map[string]interface{}{
 		"mossLowerLevelStoreName": "mossStore",
@@ -77,8 +77,8 @@ func New(cfg config.Config, log *logrus.Logger) error {
 }
 
 // Open loads a repository
-func Open(cfg config.Config, log *logrus.Logger) (Bleve, error) {
-	log.Debug("Loading Repository" + cfg.Repository.URL)
+func OpenBleve(cfg config.Config, log *logrus.Logger) (Bleve, error) {
+	log.Debug("Loading Repository " + cfg.Repository.URL)
 	log.Debug("Type: " + cfg.Repository.Type)
 	log.Debug("URL: " + cfg.Repository.URL)
 	s := Bleve{

@@ -46,11 +46,11 @@ var log = logrus.New()
 // GeoCatalogue provides the core structure
 type GeoCatalogue struct {
 	Config     config.Config
-	Repository repository.Bleve
+	Repository *repository.Elasticsearch
 }
 
 // New provides the initializing functionality
-func New(cfg *config.Config) (GeoCatalogue, error) {
+func New(cfg *config.Config) (*GeoCatalogue, error) {
 
 	c := GeoCatalogue{}
 	c.Config = *cfg
@@ -64,16 +64,16 @@ func New(cfg *config.Config) (GeoCatalogue, error) {
 	log.Info("Loading repository")
 	repo, err := repository.Open(c.Config, log)
 	if err != nil {
-		return c, err
+		return &c, err
 	}
-	c.Repository = repo
+	c.Repository = &repo
 
-	return c, nil
+	return &c, nil
 }
 
 // NewFromEnv provides the initializing functionality
 // using configuration from the environment
-func NewFromEnv() (GeoCatalogue, error) {
+func NewFromEnv() (*GeoCatalogue, error) {
 	cfg := config.LoadFromEnv()
 	return New(&cfg)
 }
