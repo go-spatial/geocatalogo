@@ -5,10 +5,16 @@ go:
  - 1.8.x
  - 1.7.x
 
+services:
+  - elasticsearch
+
 install:
   - go get github.com/tomkralidis/geocatalogo/...
   - go get -u github.com/golang/lint/golint
 
+before_script:
+  - sleep 10
+  
 script:
   - . geocatalogo-config.env
   - go test ./... -v
