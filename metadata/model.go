@@ -55,7 +55,6 @@ type ProductInfo struct {
 	AcquisitionDate   *time.Time `json:"acquisition_date,omitempty"`
 	ProcessingLevel   string     `json:"processing_level,omitempty"`
 	SensorIdentifier  string     `json:"sensor_id,omitempty"`
-	SensorId          string     `json:"sensor_id,omitempty"`
 }
 
 // Temporal describes temporal bounds
@@ -64,6 +63,7 @@ type Temporal struct {
 	End   *time.Time `json:"end,omitempty"`
 }
 
+// Link describes link constructs
 type Link struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`

@@ -50,7 +50,7 @@ type Bleve struct {
 	Index    bleve.Index
 }
 
-// New creates a repository
+// NewBleve creates a repository
 func NewBleve(cfg config.Config, log *logrus.Logger) error {
 
 	kvconfig := map[string]interface{}{
@@ -76,7 +76,7 @@ func NewBleve(cfg config.Config, log *logrus.Logger) error {
 	return nil
 }
 
-// Open loads a repository
+// OpenBleve loads a repository
 func OpenBleve(cfg config.Config, log *logrus.Logger) (Bleve, error) {
 	log.Debug("Loading Repository " + cfg.Repository.URL)
 	log.Debug("Type: " + cfg.Repository.Type)
@@ -199,20 +199,20 @@ func transformResultToRecord(rec *bleveSearch.DocumentMatch) metadata.Record {
 	mr.Properties.Abstract = fmt.Sprintf("%v", rec.Fields["properties.abstract"])
 	mr.Properties.Language = fmt.Sprintf("%v", rec.Fields["properties.language"])
 
-	product_id := fmt.Sprintf("%v", rec.Fields["properties.product_info.product_id"])
-	scene_id := fmt.Sprintf("%v", rec.Fields["properties.product_info.scene_id"])
-	acquisition_date, _ := time.Parse(time.RFC3339, fmt.Sprintf("%v", rec.Fields["properties.product_info.acquisition_date"]))
-	cloud_cover, _ := strconv.ParseFloat(fmt.Sprintf("%v", rec.Fields["properties.product_info.path"]), 64)
-	processing_level := fmt.Sprintf("%v", rec.Fields["properties.product_info.processing_level"])
+	productID := fmt.Sprintf("%v", rec.Fields["properties.product_info.productID"])
+	sceneID := fmt.Sprintf("%v", rec.Fields["properties.product_info.sceneID"])
+	acquisitionDate, _ := time.Parse(time.RFC3339, fmt.Sprintf("%v", rec.Fields["properties.product_info.acquisitionDate"]))
+	cloudCover, _ := strconv.ParseFloat(fmt.Sprintf("%v", rec.Fields["properties.product_info.path"]), 64)
+	processingLevel := fmt.Sprintf("%v", rec.Fields["properties.product_info.processingLevel"])
 	path, _ := strconv.ParseUint(fmt.Sprintf("%v", rec.Fields["properties.product_info.path"]), 10, 64)
 	row, _ := strconv.ParseUint(fmt.Sprintf("%v", rec.Fields["properties.product_info.row"]), 10, 64)
 
 	pi := &metadata.ProductInfo{
-		ProductIdentifier: product_id,
-		SceneIdentifier:   scene_id,
-		AcquisitionDate:   &acquisition_date,
-		CloudCover:        cloud_cover,
-		ProcessingLevel:   processing_level,
+		ProductIdentifier: productID,
+		SceneIdentifier:   sceneID,
+		AcquisitionDate:   &acquisitionDate,
+		CloudCover:        cloudCover,
+		ProcessingLevel:   processingLevel,
 		Path:              path,
 		Row:               row,
 	}

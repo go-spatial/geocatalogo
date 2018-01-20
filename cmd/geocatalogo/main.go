@@ -52,7 +52,7 @@ func main() {
 	var router *mux.Router
 	var plural = ""
 	var bbox []float64
-	var time_ []time.Time
+	var timeVal []time.Time
 	var fileCount = 0
 	var fileCounter = 1
 	fileList := []string{}
@@ -210,10 +210,10 @@ func main() {
 					fmt.Println("time format error (should be ISO 8601/RFC3339)")
 					os.Exit(10007)
 				}
-				time_ = append(time_, timestep)
+				timeVal = append(timeVal, timestep)
 			}
 		}
-		results := cat.Search(*termFlag, bbox, time_, *fromFlag, *sizeFlag)
+		results := cat.Search(*termFlag, bbox, timeVal, *fromFlag, *sizeFlag)
 		fmt.Printf("Found %d records\n", results.Matches)
 		for _, result := range results.Records {
 			fmt.Printf("    %s - %s\n", result.Properties.Identifier, result.Properties.Title)

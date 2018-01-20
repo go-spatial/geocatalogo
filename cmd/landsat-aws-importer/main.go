@@ -51,7 +51,7 @@ func main() {
 	flag.Parse()
 
 	if *sceneListFlag == "" {
-		fmt.Println("Missing file flag\n")
+		fmt.Println("Missing file flag")
 		os.Exit(1)
 	}
 
@@ -76,12 +76,12 @@ func main() {
 		cloudCover, _ := strconv.ParseFloat(line[3], 64)
 		path, _ := strconv.ParseUint(line[5], 10, 64)
 		row, _ := strconv.ParseUint(line[6], 10, 64)
-		min_lat, _ := strconv.ParseFloat(line[7], 64)
-		min_lon, _ := strconv.ParseFloat(line[8], 64)
-		max_lat, _ := strconv.ParseFloat(line[9], 64)
-		max_lon, _ := strconv.ParseFloat(line[10], 64)
-		download_url := line[11]
-		metadata_url := strings.Replace(line[11], "/index.html", "/"+line[0]+"_MTL.json", 1)
+		minLat, _ := strconv.ParseFloat(line[7], 64)
+		minLon, _ := strconv.ParseFloat(line[8], 64)
+		maxLat, _ := strconv.ParseFloat(line[9], 64)
+		maxLon, _ := strconv.ParseFloat(line[10], 64)
+		downloadURL := line[11]
+		metadataURL := strings.Replace(line[11], "/index.html", "/"+line[0]+"_MTL.json", 1)
 
 		metadataRecord := metadata.Record{}
 
@@ -90,8 +90,8 @@ func main() {
 		metadataRecord.Properties.Identifier = line[0]
 		metadataRecord.Properties.Title = line[1]
 		metadataRecord.Properties.Abstract = "Landsat 8 scene " + line[1]
-		metadataRecord.Properties.Links = append(metadataRecord.Properties.Links, metadata.Link{URL: download_url})
-		metadataRecord.Properties.Links = append(metadataRecord.Properties.Links, metadata.Link{URL: metadata_url})
+		metadataRecord.Properties.Links = append(metadataRecord.Properties.Links, metadata.Link{URL: downloadURL})
+		metadataRecord.Properties.Links = append(metadataRecord.Properties.Links, metadata.Link{URL: metadataURL})
 
 		pi := &metadata.ProductInfo{
 			ProductIdentifier: line[0],
@@ -109,17 +109,17 @@ func main() {
 		metadataRecord.Geometry.Type = "Polygon"
 
 		var coordinates = [][][2]float64{{
-			{min_lon, min_lat},
-			{min_lon, max_lat},
-			{max_lon, max_lat},
-			{max_lon, min_lat},
-			{min_lon, min_lat},
+			{minLon, minLat},
+			{minLon, maxLat},
+			{maxLon, maxLat},
+			{maxLon, minLat},
+			{minLon, minLat},
 		}}
 
 		metadataRecord.Geometry.Coordinates = coordinates
 
 		metadataRecord.Properties.Geocatalogo.Schema = "local"
-		metadataRecord.Properties.Geocatalogo.Source = metadata_url
+		metadataRecord.Properties.Geocatalogo.Source = metadataURL
 
 		res, _ := json.Marshal(metadataRecord)
 		fmt.Println(string(res))

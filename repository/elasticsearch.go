@@ -44,7 +44,7 @@ import (
 	"github.com/tomkralidis/geocatalogo/search"
 )
 
-// Bleve provides an object model for repository.
+// Elasticsearch provides an object model for repository.
 type Elasticsearch struct {
 	Type      string
 	URL       string
@@ -54,13 +54,13 @@ type Elasticsearch struct {
 	TypeName  string
 }
 
-func createClient(repo_url string) (*elastic.Client, error) {
-	var es_url string
+func createClient(repoURL string) (*elastic.Client, error) {
+	var esURL string
 
-	u, err := url.Parse(repo_url)
-	es_url = fmt.Sprintf("%s://%s", u.Scheme, u.Host)
+	u, err := url.Parse(repoURL)
+	esURL = fmt.Sprintf("%s://%s", u.Scheme, u.Host)
 
-	client, err := elastic.NewClient(elastic.SetURL(es_url))
+	client, err := elastic.NewClient(elastic.SetURL(esURL))
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func (r *Elasticsearch) Delete() bool {
 }
 
 // Query performs a search against the repository
-func (r *Elasticsearch) Query(term string, bbox []float64, time_ []time.Time, from int, size int, sr *search.Results) error {
+func (r *Elasticsearch) Query(term string, bbox []float64, timeVal []time.Time, from int, size int, sr *search.Results) error {
 	var mr metadata.Record
 	//	var query elastic.Query
 	ctx := context.Background()
@@ -175,13 +175,13 @@ func (r *Elasticsearch) Query(term string, bbox []float64, time_ []time.Time, fr
 	} else {
 		query = query.Must(elastic.NewQueryStringQuery(term))
 	}
-	if len(time_) > 0 {
-		if len(time_) == 1 { // exact match
-			query = query.Must(elastic.NewTermQuery("properties.product_info.acquisition_date", time_[0]))
-		} else if len(time_) == 2 { // range
+	if len(timeVal) > 0 {
+		if len(timeVal) == 1 { // exact match
+			query = query.Must(elastic.NewTermQuery("properties.product_info.acquisition_date", timeVal[0]))
+		} else if len(timeVal) == 2 { // range
 			rangeQuery := elastic.NewRangeQuery("properties.product_info.acquisition_date").
-				From(time_[0]).
-				To(time_[1])
+				From(timeVal[0]).
+				To(timeVal[1])
 			query = query.Must(rangeQuery)
 		}
 	}
