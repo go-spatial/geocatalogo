@@ -56,8 +56,26 @@ geocatalogo index --file=/path/to/record.xml
 # index a directory of metadata records
 geocatalogo index --dir=/path/to/dir
 
+# dedicated importers
+
+# Landsat on AWS (https://aws.amazon.com/public-datasets/landsat/)
+curl http://landsat-pds.s3.amazonaws.com/c1/L8/scene_list.gz | gunzip > /tmp/scene_list
+landsat-aws-importer --file /tmp/scene_list
+
 # search index
 geocatalogo search --term=landsat
+
+# search by bbox
+geocatalogo search --bbox -152,42,-52,84
+
+# search by time instant
+geocatalogo search --time 2018-01-19T18:28:02Z
+
+# search by time range
+geocatalogo search --time 2007-11-11T12:43:29Z,2018-01-19T18:28:02Z
+
+# search by any combination exclusively (term, bbox, time)
+geocatalogo search --time 2007-11-11T12:43:29Z,2018-01-19T18:28:02Z --bbox -152,42,-52,84 --term landsat
 
 # get a metadata record by id
 geocatalogo get --id=12345
@@ -68,7 +86,9 @@ geocatalogo get --id=12345,67890
 # run as an HTTP server (default port 8000)
 geocatalogo serve
 # run as an HTTP server on a custom port
-geocatalogo serve -port 8001
+geocatalogo serve --port 8001
+# run as an HTTP server honouring the STAC API
+geocatalogo serve --api stac
 
 # get version
 geocatalogo version

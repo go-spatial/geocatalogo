@@ -108,13 +108,14 @@ func main() {
 
 		metadataRecord.Geometry.Type = "Polygon"
 
-		var coordinates = [][2]float64{
+		var coordinates = [][][2]float64{{
 			{min_lon, min_lat},
 			{min_lon, max_lat},
 			{max_lon, max_lat},
-			{max_lon, min_lon},
+			{max_lon, min_lat},
 			{min_lon, min_lat},
-		}
+		}}
+
 		metadataRecord.Geometry.Coordinates = coordinates
 
 		metadataRecord.Properties.Geocatalogo.Schema = "local"

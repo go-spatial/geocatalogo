@@ -34,11 +34,14 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
 	"flag"
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
+
 	"github.com/tomkralidis/geocatalogo"
 	"github.com/tomkralidis/geocatalogo/config"
 	"github.com/tomkralidis/geocatalogo/metadata/parsers"
@@ -46,7 +49,10 @@ import (
 )
 
 func main() {
+	var router *mux.Router
 	var plural = ""
+	var bbox []float64
+	var time_ []time.Time
 	var fileCount = 0
 	var fileCounter = 1
 	fileList := []string{}
@@ -71,6 +77,8 @@ func main() {
 
 	searchCommand := flag.NewFlagSet("search", flag.ExitOnError)
 	termFlag := searchCommand.String("term", "", "Search term(s)")
+	bboxFlag := searchCommand.String("bbox", "", "Bounding box (minx,miny,maxx,maxy)")
+	timeFlag := searchCommand.String("time", "", "Time (t1[,t2]), RFC3339 format")
 	fromFlag := searchCommand.Int("from", 0, "Start position / offset (default=0)")
 	sizeFlag := searchCommand.Int("size", 10, "Number of results to return (default=10)")
 
@@ -79,6 +87,7 @@ func main() {
 
 	serveCommand := flag.NewFlagSet("serve", flag.ExitOnError)
 	portFlag := serveCommand.Int("port", 8000, "port")
+	apiFlag := serveCommand.String("api", "default", "API to serve (default, stac)")
 
 	versionCommand := flag.NewFlagSet("version", flag.ExitOnError)
 
@@ -183,28 +192,47 @@ func main() {
 			fileCounter++
 		}
 	} else if searchCommand.Parsed() {
-		if *termFlag == "" {
-			fmt.Println("Please provide search term")
-			os.Exit(10005)
+		if *bboxFlag != "" {
+			bboxTokens := strings.Split(*bboxFlag, ",")
+			if len(bboxTokens) != 4 {
+				fmt.Println("bbox format error (should be minx,miny,maxx,maxy)")
+				os.Exit(10006)
+			}
+			for _, b := range bboxTokens {
+				b_, _ := strconv.ParseFloat(b, 64)
+				bbox = append(bbox, b_)
+			}
 		}
-		results := cat.Search(*termFlag, *fromFlag, *sizeFlag)
+		if *timeFlag != "" {
+			for _, t := range strings.Split(*timeFlag, ",") {
+				timestep, err := time.Parse(time.RFC3339, t)
+				if err != nil {
+					fmt.Println("time format error (should be ISO 8601/RFC3339)")
+					os.Exit(10007)
+				}
+				time_ = append(time_, timestep)
+			}
+		}
+		results := cat.Search(*termFlag, bbox, time_, *fromFlag, *sizeFlag)
 		fmt.Printf("Found %d records\n", results.Matches)
 		for _, result := range results.Records {
 			fmt.Printf("    %s - %s\n", result.Properties.Identifier, result.Properties.Title)
 		}
 	} else if serveCommand.Parsed() {
 		fmt.Printf("Serving on port %d\n", *portFlag)
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			geocatalogo.Handler(w, r, cat)
-		})
-		if err := http.ListenAndServe(fmt.Sprintf(":%d", *portFlag), nil); err != nil {
+		if *apiFlag == "stac" {
+			router = geocatalogo.STACRouter(cat)
+		} else { // csw3-opensearch is the default
+			router = geocatalogo.CSW3OpenSearchRouter(cat)
+		}
+		if err := http.ListenAndServe(fmt.Sprintf(":%d", *portFlag), router); err != nil {
 			fmt.Println(err)
-			os.Exit(10006)
+			os.Exit(10008)
 		}
 	} else if getCommand.Parsed() {
 		if *idFlag == "" {
 			fmt.Println("Please provide identifier")
-			os.Exit(10007)
+			os.Exit(10009)
 		}
 		recordids := strings.Split(*idFlag, ",")
 		results := cat.Get(recordids)

@@ -24,6 +24,7 @@
 ##############################################################################
 
 server:
+    api_data_basedir: /path/to/basedir
     url: http://localhost/geocatalogo
     mimetype: application/json; charset=UTF-8
     encoding: utf-8

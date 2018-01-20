@@ -26,12 +26,14 @@
 package repository
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"net/url"
 	"reflect"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/olivere/elastic"
@@ -44,12 +46,12 @@ import (
 
 // Bleve provides an object model for repository.
 type Elasticsearch struct {
-	Type     string
-	URL      string
-	Mappings map[string]string
-	Index    elastic.Client
+	Type      string
+	URL       string
+	Mappings  map[string]string
+	Index     elastic.Client
 	IndexName string
-	TypeName string
+	TypeName  string
 }
 
 func createClient(repo_url string) (*elastic.Client, error) {
@@ -68,6 +70,19 @@ func createClient(repo_url string) (*elastic.Client, error) {
 
 // New creates a repository
 func New(cfg config.Config, log *logrus.Logger) error {
+
+	indexMapping := `{
+			"mappings": {
+				"scene": {
+					"properties": {
+						"geometry": {
+							"type": "geo_shape"
+						}
+					}
+				}
+			}
+		}`
+
 	ctx := context.Background()
 
 	client, err := createClient(cfg.Repository.URL)
@@ -76,9 +91,9 @@ func New(cfg config.Config, log *logrus.Logger) error {
 	}
 
 	tokens := strings.Split(cfg.Repository.URL, "/")
-	indexName := tokens[len(tokens)-1]
+	indexName := tokens[len(tokens)-2]
 
-	createIndex, err := client.CreateIndex(indexName).Do(ctx)
+	createIndex, err := client.CreateIndex(indexName).Body(indexMapping).Do(ctx)
 	if err != nil {
 		errorText := fmt.Sprintf("Cannot create repository: %v\n", err)
 		log.Errorf(errorText)
@@ -101,11 +116,11 @@ func Open(cfg config.Config, log *logrus.Logger) (Elasticsearch, error) {
 	log.Debug("Type: " + cfg.Repository.Type)
 	log.Debug("URL: " + cfg.Repository.URL)
 	s := Elasticsearch{
-		Type:     cfg.Repository.Type,
-		URL:      cfg.Repository.URL,
-		Mappings: cfg.Repository.Mappings,
+		Type:      cfg.Repository.Type,
+		URL:       cfg.Repository.URL,
+		Mappings:  cfg.Repository.Mappings,
 		IndexName: getIndexName(cfg.Repository.URL),
-		TypeName: getTypeName(cfg.Repository.URL),
+		TypeName:  getTypeName(cfg.Repository.URL),
 	}
 	log.Debug("IndexName: " + s.IndexName)
 	log.Debug("TypeName: " + s.TypeName)
@@ -148,10 +163,65 @@ func (r *Elasticsearch) Delete() bool {
 }
 
 // Query performs a search against the repository
-func (r *Elasticsearch) Query(term string, sr *search.Results, from int, size int) error {
+func (r *Elasticsearch) Query(term string, bbox []float64, time_ []time.Time, from int, size int, sr *search.Results) error {
 	var mr metadata.Record
+	//	var query elastic.Query
 	ctx := context.Background()
-	query := elastic.NewQueryStringQuery(term)
+
+	query := elastic.NewBoolQuery()
+
+	if term == "" {
+		query = query.Must(elastic.NewMatchAllQuery())
+	} else {
+		query = query.Must(elastic.NewQueryStringQuery(term))
+	}
+	if len(time_) > 0 {
+		if len(time_) == 1 { // exact match
+			query = query.Must(elastic.NewTermQuery("properties.product_info.acquisition_date", time_[0]))
+		} else if len(time_) == 2 { // range
+			rangeQuery := elastic.NewRangeQuery("properties.product_info.acquisition_date").
+				From(time_[0]).
+				To(time_[1])
+			query = query.Must(rangeQuery)
+		}
+	}
+	if len(bbox) == 4 {
+		// workaround for issuing a RawStringQuery until
+		// GeoShape queries are supported (https://github.com/olivere/elastic/pull/276)
+		var tpl bytes.Buffer
+		vars := map[string]interface{}{
+			"bbox":  bbox,
+			"field": "geometry",
+		}
+		rawStringQueryTemplate, _ := template.New("J").Parse(`{   
+          "geo_shape": {
+            "{{ .field }}": {
+              "shape": {
+                "type": "envelope",
+                "coordinates": [
+                  [   
+                    {{ index .bbox 0 }}, 
+                    {{ index .bbox 1 }}
+                  ],  
+                  [   
+                    {{ index .bbox 2 }}, 
+                    {{ index .bbox 3 }}
+                  ]   
+                ]
+              },
+              "relation": "within"
+            }   
+          }   
+        }`)
+		rawStringQueryTemplate.Execute(&tpl, vars)
+
+		query = query.Must(elastic.NewRawStringQuery(tpl.String()))
+	}
+
+	//src, err := query.Source()
+	//data, err := json.Marshal(src)
+	//fmt.Println(string(data))
+
 	searchResult, err := r.Index.Search().
 		Index(r.IndexName).
 		Type(r.TypeName).
@@ -185,12 +255,13 @@ func (r *Elasticsearch) Query(term string, sr *search.Results, from int, size in
 // Get gets specified metadata records from the repository
 func (r *Elasticsearch) Get(identifiers []string, sr *search.Results) error {
 	var mr metadata.Record
-	termsQuery := elastic.NewTermsQuery("_id", identifiers)
+
+	idsQuery := elastic.NewIdsQuery(r.TypeName).Ids(identifiers...)
 	ctx := context.Background()
 	searchResult, err := r.Index.Search().
 		Index(r.IndexName).
 		Type(r.TypeName).
-		Query(termsQuery).Do(ctx)
+		Query(idsQuery).Do(ctx)
 
 	if err != nil {
 		return err

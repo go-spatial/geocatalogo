@@ -37,3 +37,9 @@ type Results struct {
 	NextRecord  int
 	Records     []metadata.Record
 }
+
+// Exception provides the error messaging structure
+type Exception struct {
+	Code        int
+	Description string
+}

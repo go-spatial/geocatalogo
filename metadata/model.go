@@ -72,8 +72,8 @@ type Link struct {
 }
 
 type geometry struct {
-	Type        string       `json:"type"`
-	Coordinates [][2]float64 `json:"coordinates"`
+	Type        string         `json:"type"`
+	Coordinates [][][2]float64 `json:"coordinates"`
 }
 
 type geocatalogo struct {

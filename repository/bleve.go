@@ -114,7 +114,7 @@ func (r *Bleve) Delete() bool {
 }
 
 // Query performs a search against the repository
-func (r *Bleve) Query(term string, sr *search.Results, from int, size int) error {
+func (r *Bleve) Query(term string, from int, size int, sr *search.Results) error {
 	query := bleve.NewQueryStringQuery(term)
 
 	searchRequest := bleve.NewSearchRequest(query)
@@ -190,7 +190,7 @@ func transformResultToRecord(rec *bleveSearch.DocumentMatch) metadata.Record {
 		lr[0] = coords[6].(float64)
 		lr[1] = coords[7].(float64)
 
-		mr.Geometry.Coordinates = [][2]float64{ll, ul, ur, lr, ll}
+		//mr.Geometry.Coordinates = [][2]float64{ll, ul, ur, lr, ll}
 	}
 
 	mr.Properties.Identifier = fmt.Sprintf("%v", rec.Fields["properties.identifier"])

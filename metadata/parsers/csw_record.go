@@ -72,18 +72,18 @@ func (e *boundingBox) Maxy() (float64, error) {
 }
 
 // BBox generates a list of minx,miny,maxx,maxy
-func (e *boundingBox) BBox() [][2]float64 {
+func (e *boundingBox) BBox() [][][2]float64 {
 	minx, _ := e.Minx()
 	miny, _ := e.Miny()
 	maxx, _ := e.Maxx()
 	maxy, _ := e.Maxy()
-	var a = [][2]float64{
+	var a = [][][2]float64{{
 		{minx, miny},
 		{minx, maxy},
 		{maxx, maxy},
 		{maxx, miny},
 		{minx, miny},
-	}
+	}}
 	return a
 }
 
