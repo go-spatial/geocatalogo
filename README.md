@@ -35,11 +35,6 @@ go install github.com/golang/lint/...
 cp geocatalogo-config.env local.env
 vi local.env  # update accordingly
 . local.env
-
-# import the Landsat AWS scene list (https://aws.amazon.com/public-datasets/landsat/)
-wget http://landsat-pds.s3.amazonaws.com/c1/L8/scene_list.gz
-gunzip scene_list.gz
-$GOPATH/bin/landsat-aws-importer scene_list
 ```
 
 ## Running
@@ -61,6 +56,10 @@ geocatalogo index --dir=/path/to/dir
 # Landsat on AWS (https://aws.amazon.com/public-datasets/landsat/)
 curl http://landsat-pds.s3.amazonaws.com/c1/L8/scene_list.gz | gunzip > /tmp/scene_list
 landsat-aws-importer --file /tmp/scene_list
+
+# OpenAerialMap Catalog (https://docs.openaerialmap.org/catalog/)
+curl https://api.openaerialmap.org/meta?limit=5000 > /tmp/oam.json
+oam-catalog-importer --file /tmp/scene_list
 
 # search index
 geocatalogo search --term=landsat

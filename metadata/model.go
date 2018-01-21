@@ -34,7 +34,7 @@ type keywords struct {
 	Type    string
 }
 
-type contact struct {
+type Contact struct {
 	Type  string
 	Value string
 }
@@ -47,6 +47,7 @@ type date struct {
 // ProductInfo describes product specific metadata
 // for example EO data
 type ProductInfo struct {
+	Platform          string     `json:"platform,omitempty"`
 	ProductIdentifier string     `json:"product_id,omitempty"`
 	SceneIdentifier   string     `json:"scene_id,omitempty"`
 	Path              uint64     `json:"path,omitempty"`
@@ -80,6 +81,7 @@ type geocatalogo struct {
 	Inserted time.Time `json:"inserted"`
 	Source   string    `json:"source"`
 	Schema   string    `json:"schema,omitempty"`
+	Typename string    `json:"type,omitempty"`
 }
 
 type properties struct {
@@ -90,7 +92,7 @@ type properties struct {
 	Modified       *time.Time   `json:"modified,omitempty"`
 	Abstract       string       `json:"abstract,omitempty"`
 	KeywordsSets   []keywords   `json:"keywords,omitempty"`
-	Contacts       []contact    `json:"contact,omitempty"`
+	Contacts       []Contact    `json:"contact,omitempty"`
 	Dates          []date       `json:"dates,omitempty"`
 	License        string       `json:"license,omitempty"`
 	Language       string       `json:"language,omitempty"`

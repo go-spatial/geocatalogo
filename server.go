@@ -204,6 +204,14 @@ func CSW3OpenSearchRouter(cat *GeoCatalogue) *mux.Router {
 func STACRouter(cat *GeoCatalogue) *mux.Router {
 	router := mux.NewRouter()
 
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/stac/api", 301)
+	}).Methods("GET")
+
+	router.HandleFunc("/stac", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/stac/api", 301)
+	}).Methods("GET")
+
 	router.HandleFunc("/stac/api", func(w http.ResponseWriter, r *http.Request) {
 		source, _ := ioutil.ReadFile(filepath.Join(cat.Config.Server.ApiDataBasedir, "stac-api.json"))
 		w.Header().Set("Content-Type", cat.Config.Server.MimeType)

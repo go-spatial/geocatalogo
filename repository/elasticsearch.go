@@ -70,18 +70,24 @@ func createClient(repoURL string) (*elastic.Client, error) {
 
 // New creates a repository
 func New(cfg config.Config, log *logrus.Logger) error {
+	var tpl bytes.Buffer
+	vars := map[string]interface{}{
+		"typename": getTypeName(cfg.Repository.URL),
+	}
 
-	indexMapping := `{
-			"mappings": {
-				"scene": {
-					"properties": {
-						"geometry": {
-							"type": "geo_shape"
-						}
+	indexMappingTemplate, _ := template.New("geo_mapping").Parse(`{
+		"mappings": {
+			"{{ .typename }}": {
+				"properties": {
+					"geometry": {
+						"type": "geo_shape"
 					}
 				}
 			}
-		}`
+		}
+	}`)
+
+	indexMappingTemplate.Execute(&tpl, vars)
 
 	ctx := context.Background()
 
@@ -90,10 +96,9 @@ func New(cfg config.Config, log *logrus.Logger) error {
 		panic(err)
 	}
 
-	tokens := strings.Split(cfg.Repository.URL, "/")
-	indexName := tokens[len(tokens)-2]
+	indexName := getIndexName(cfg.Repository.URL)
 
-	createIndex, err := client.CreateIndex(indexName).Body(indexMapping).Do(ctx)
+	createIndex, err := client.CreateIndex(indexName).Body(tpl.String()).Do(ctx)
 	if err != nil {
 		errorText := fmt.Sprintf("Cannot create repository: %v\n", err)
 		log.Errorf(errorText)
@@ -193,7 +198,7 @@ func (r *Elasticsearch) Query(term string, bbox []float64, timeVal []time.Time, 
 			"bbox":  bbox,
 			"field": "geometry",
 		}
-		rawStringQueryTemplate, _ := template.New("J").Parse(`{   
+		rawStringQueryTemplate, _ := template.New("geo_shape_query").Parse(`{   
           "geo_shape": {
             "{{ .field }}": {
               "shape": {
