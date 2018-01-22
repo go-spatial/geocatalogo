@@ -149,4 +149,4 @@ All bugs, enhancements and issues are managed on [GitHub](https://github.com/go-
 
 ## Contact
 
-* [Tom Kralidis](https://github.com/go-spatial)
+* [Tom Kralidis](https://github.com/tomkralidis)
