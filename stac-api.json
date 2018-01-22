@@ -15,7 +15,7 @@
     }
   },
   "host": "geocatalogo.kralidis.ca",
-  "basePath": "\/stac",
+  "basePath": "\/landsat-aws\/stac",
   "tags": [
     {
       "name": "Capabilities",

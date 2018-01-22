@@ -28,8 +28,8 @@ package geocatalogo
 import (
 	"os"
 
+	"github.com/go-spatial/geocatalogo/config"
 	"github.com/sirupsen/logrus"
-	"github.com/tomkralidis/geocatalogo/config"
 )
 
 // LogLevels provides a mapping between configuration and logging

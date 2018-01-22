@@ -39,9 +39,9 @@ import (
 	"github.com/olivere/elastic"
 	"github.com/sirupsen/logrus"
 
-	"github.com/tomkralidis/geocatalogo/config"
-	"github.com/tomkralidis/geocatalogo/metadata"
-	"github.com/tomkralidis/geocatalogo/search"
+	"github.com/go-spatial/geocatalogo/config"
+	"github.com/go-spatial/geocatalogo/metadata"
+	"github.com/go-spatial/geocatalogo/search"
 )
 
 // Elasticsearch provides an object model for repository.

@@ -24,7 +24,7 @@
 ##############################################################################
 
 server:
-    api_data_basedir: /path/to/basedir
+    openapi_def: /path/to/basedir
     url: http://localhost/geocatalogo
     mimetype: application/json; charset=UTF-8
     encoding: utf-8
@@ -49,7 +49,7 @@ metadata:
         accessconstraints: None
     provider:
         name: Organization Name
-        url: https://github.com/tomkralidis/geocatalogo
+        url: https://github.com/go-spatial/geocatalogo
     contact:
         name: Lastname, Firstname
         position: Position Title

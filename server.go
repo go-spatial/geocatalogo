@@ -36,8 +36,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-spatial/geocatalogo/search"
 	"github.com/gorilla/mux"
-	"github.com/tomkralidis/geocatalogo/search"
 )
 
 // CSW3OpenSearchHandler provides a default HTTP API

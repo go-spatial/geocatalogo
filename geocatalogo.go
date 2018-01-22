@@ -33,10 +33,10 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/tomkralidis/geocatalogo/config"
-	"github.com/tomkralidis/geocatalogo/metadata"
-	"github.com/tomkralidis/geocatalogo/repository"
-	"github.com/tomkralidis/geocatalogo/search"
+	"github.com/go-spatial/geocatalogo/config"
+	"github.com/go-spatial/geocatalogo/metadata"
+	"github.com/go-spatial/geocatalogo/repository"
+	"github.com/go-spatial/geocatalogo/search"
 )
 
 // VERSION provides the geocatalogo version installed.

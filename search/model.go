@@ -26,7 +26,7 @@
 package search
 
 import (
-	"github.com/tomkralidis/geocatalogo/metadata"
+	"github.com/go-spatial/geocatalogo/metadata"
 )
 
 // Results provides the search result structure

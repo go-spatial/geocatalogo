@@ -2,10 +2,10 @@ package geocatalogo_test
 
 import (
 	"fmt"
+	"github.com/go-spatial/geocatalogo"
+	"github.com/go-spatial/geocatalogo/config"
+	"github.com/go-spatial/geocatalogo/repository"
 	"github.com/sirupsen/logrus"
-	"github.com/tomkralidis/geocatalogo"
-	"github.com/tomkralidis/geocatalogo/config"
-	"github.com/tomkralidis/geocatalogo/repository"
 	"testing"
 )
 

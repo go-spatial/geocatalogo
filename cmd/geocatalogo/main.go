@@ -42,10 +42,10 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
-	"github.com/tomkralidis/geocatalogo"
-	"github.com/tomkralidis/geocatalogo/config"
-	"github.com/tomkralidis/geocatalogo/metadata/parsers"
-	"github.com/tomkralidis/geocatalogo/repository"
+	"github.com/go-spatial/geocatalogo"
+	"github.com/go-spatial/geocatalogo/config"
+	"github.com/go-spatial/geocatalogo/metadata/parsers"
+	"github.com/go-spatial/geocatalogo/repository"
 )
 
 func main() {

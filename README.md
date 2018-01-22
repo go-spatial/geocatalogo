@@ -1,8 +1,8 @@
 # geocatalogo
 
-[![Build Status](https://travis-ci.org/tomkralidis/geocatalogo.png)](https://travis-ci.org/tomkralidis/geocatalogo)
-[![Report Card](https://goreportcard.com/badge/github.com/tomkralidis/geocatalogo)](https://goreportcard.com/report/github.com/tomkralidis/geocatalogo)
-[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/tomkralidis/geocatalogo)
+[![Build Status](https://travis-ci.org/go-spatial/geocatalogo.png)](https://travis-ci.org/go-spatial/geocatalogo)
+[![Report Card](https://goreportcard.com/badge/github.com/go-spatial/geocatalogo)](https://goreportcard.com/report/github.com/go-spatial/geocatalogo)
+[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/go-spatial/geocatalogo)
 
 ## Overview
 
@@ -23,7 +23,7 @@ go get gopkg.in/yaml.v2
 go build ./...
 config/config.go:34:2: cannot find package "gopkg.in/yaml.v2"
 # install geocatalogo
-go get github.com/tomkralidis/geocatalogo/...
+go get github.com/go-spatial/geocatalogo/...
 # install utilities/helpers
 # default backend
 go get github.com/olivere/elastic
@@ -31,7 +31,7 @@ go get github.com/olivere/elastic
 go get github.com/blevesearch/bleve/...
 go install github.com/golang/lint/...
 # set configuration
-# (sample in $GOPATH/src/github.com/tomkralidis/geocatalogo/geocatalogo-config.env)
+# (sample in $GOPATH/src/github.com/go-spatial/geocatalogo/geocatalogo-config.env)
 cp geocatalogo-config.env local.env
 vi local.env  # update accordingly
 . local.env
@@ -100,8 +100,8 @@ geocatalogo version
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/tomkralidis/geocatalogo"
-	"github.com/tomkralidis/geocatalogo/metadata/parsers"
+	"github.com/go-spatial/geocatalogo"
+	"github.com/go-spatial/geocatalogo/metadata/parsers"
 )
 
 cat, err := geocatalogo.NewFromEnv()
@@ -145,8 +145,8 @@ for _, result := range results.Records {
 
 ### Bugs and Issues
 
-All bugs, enhancements and issues are managed on [GitHub](https://github.com/tomkralidis/geocatalogo).
+All bugs, enhancements and issues are managed on [GitHub](https://github.com/go-spatial/geocatalogo).
 
 ## Contact
 
-* [Tom Kralidis](https://github.com/tomkralidis)
+* [Tom Kralidis](https://github.com/go-spatial)

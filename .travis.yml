@@ -9,7 +9,7 @@ services:
   - elasticsearch
 
 install:
-  - go get github.com/tomkralidis/geocatalogo/...
+  - go get github.com/go-spatial/geocatalogo/...
   - go get -u github.com/golang/lint/golint
 
 before_script:

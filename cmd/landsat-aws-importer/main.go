@@ -36,8 +36,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tomkralidis/geocatalogo"
-	"github.com/tomkralidis/geocatalogo/metadata"
+	"github.com/go-spatial/geocatalogo"
+	"github.com/go-spatial/geocatalogo/metadata"
 )
 
 func main() {

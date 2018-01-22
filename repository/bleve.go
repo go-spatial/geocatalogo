@@ -37,9 +37,9 @@ import (
 	bleveSearch "github.com/blevesearch/bleve/search"
 	"github.com/sirupsen/logrus"
 
-	"github.com/tomkralidis/geocatalogo/config"
-	"github.com/tomkralidis/geocatalogo/metadata"
-	"github.com/tomkralidis/geocatalogo/search"
+	"github.com/go-spatial/geocatalogo/config"
+	"github.com/go-spatial/geocatalogo/metadata"
+	"github.com/go-spatial/geocatalogo/search"
 )
 
 // Bleve provides an object model for repository.

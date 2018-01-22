@@ -33,8 +33,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/tomkralidis/geocatalogo"
-	"github.com/tomkralidis/geocatalogo/metadata/parsers"
+	"github.com/go-spatial/geocatalogo"
+	"github.com/go-spatial/geocatalogo/metadata/parsers"
 )
 
 func main() {

@@ -37,13 +37,13 @@ import (
 // Config provides an object model for configuration.
 type Config struct {
 	Server struct {
-		ApiDataBasedir string
-		URL            string
-		MimeType       string
-		Encoding       string
-		Language       string
-		PrettyPrint    bool
-		Limit          int
+		OpenAPIDef  string
+		URL         string
+		MimeType    string
+		Encoding    string
+		Language    string
+		PrettyPrint bool
+		Limit       int
 	}
 	Logging struct {
 		Level   string
@@ -94,8 +94,8 @@ func LoadFromEnv() Config {
 		pair := strings.Split(e, "=")
 
 		switch pair[0] {
-		case "GEOCATALOGO_SERVER_API_DATA_BASEDIR":
-			cfg.Server.ApiDataBasedir = pair[1]
+		case "GEOCATALOGO_SERVER_OPENAPI_DEF":
+			cfg.Server.OpenAPIDef = pair[1]
 		case "GEOCATALOGO_SERVER_URL":
 			cfg.Server.URL = pair[1]
 		case "GEOCATALOGO_SERVER_MIMETYPE":

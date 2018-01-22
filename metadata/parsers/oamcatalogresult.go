@@ -28,7 +28,7 @@ package parsers
 import (
 	"time"
 
-	"github.com/tomkralidis/geocatalogo/metadata"
+	"github.com/go-spatial/geocatalogo/metadata"
 )
 
 // properties provides OAM Catalog Result properties

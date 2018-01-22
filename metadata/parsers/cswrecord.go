@@ -34,7 +34,7 @@ import (
 
 	"golang.org/x/net/html/charset"
 
-	"github.com/tomkralidis/geocatalogo/metadata"
+	"github.com/go-spatial/geocatalogo/metadata"
 )
 
 // CSWRecord provides a CSW 2.0.2 Record model
