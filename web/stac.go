@@ -23,96 +23,58 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// Package geocatalogo - simple HTTP Wrapper
-package geocatalogo
+// Package web - simple HTTP Wrapper
+package web
 
 import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/go-spatial/geocatalogo"
+	"github.com/go-spatial/geocatalogo/metadata"
 	"github.com/go-spatial/geocatalogo/search"
 	"github.com/gorilla/mux"
 )
 
-// CSW3OpenSearchHandler provides a default HTTP API
-func CSW3OpenSearchHandler(w http.ResponseWriter, r *http.Request, cat *GeoCatalogue) {
-	var q string
-	var recordids []string
-	var bbox []float64
-	var timeVal []time.Time
-	var startPosition int
-	var maxRecords = 10
-	var value []string
-	var results search.Results
+type properties struct {
+	start    *time.Time `json:"start"`
+	end      *time.Time `json:"end"`
+	provider string     `json:"provider"`
+	license  string     `json:"license"`
+}
 
-	kvp := make(map[string][]string)
+type links struct {
+	rel  string `json:"rel"`
+	href string `json:"href"`
+}
 
-	for k, v := range r.URL.Query() {
-		kvp[strings.ToLower(k)] = v
-	}
+type assets struct {
+	name string `json:"name"`
+	href string `json:"href"`
+}
 
-	value, _ = kvp["startposition"]
-	if len(value) > 0 {
-		startPosition, _ = strconv.Atoi(value[0])
-	}
-
-	value, _ = kvp["maxrecords"]
-	if len(value) > 0 {
-		maxRecords, _ = strconv.Atoi(value[0])
-	}
-
-	value, _ = kvp["q"]
-	if len(value) > 0 {
-		q = value[0]
-	}
-
-	value, _ = kvp["recordids"]
-	if len(value) > 0 {
-		recordids = strings.Split(value[0], ",")
-	}
-
-	if q == "" && len(recordids) < 1 {
-		exception := search.Exception{
-			Code:        20001,
-			Description: "ERROR: one of q or recordids are required"}
-		EmitResponseNotOK(w, cat.Config.Server.MimeType, cat.Config.Server.PrettyPrint, &exception)
-		return
-	}
-
-	if q != "" && len(recordids) > 0 {
-		exception := search.Exception{
-			Code:        20002,
-			Description: "ERROR: q and recordids are mutually exclusive"}
-		EmitResponseNotOK(w, cat.Config.Server.MimeType, cat.Config.Server.PrettyPrint, &exception)
-		return
-	}
-
-	if q != "" {
-		results = cat.Search(q, bbox, timeVal, startPosition, maxRecords)
-	}
-
-	if len(recordids) > 0 {
-		results = cat.Get(recordids)
-	}
-
-	EmitResponseOK(w, cat.Config.Server.MimeType, cat.Config.Server.PrettyPrint, &results)
-
-	return
+type STACItem struct {
+	Type       string     `json:"type"`
+	id         string     `json:"id"`
+	bbox       [4]float64 `json:"bbox"`
+	geometry   metadata.Geometry
+	properties properties `json:"properties"`
+	links      []links    `json:"links"`
+	assets     []assets   `json:"assets"`
 }
 
 // STACAPIDescription provides the API description
-func STACAPIDescription(w http.ResponseWriter, r *http.Request, cat *GeoCatalogue) {
+func STACAPIDescription(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatalogue) {
 	fmt.Fprintf(w, "hi there")
 }
 
 // STACItems provides STAC compliant Items matching filters
-func STACItems(w http.ResponseWriter, r *http.Request, cat *GeoCatalogue) {
+func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatalogue) {
 	var value []string
 	var filter string
 	var bbox []float64
@@ -191,38 +153,25 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *GeoCatalogue) {
 	return
 }
 
-// CSW3OpenSearchRouter provides CSW 3 OpenSearch Routing
-func CSW3OpenSearchRouter(cat *GeoCatalogue) *mux.Router {
-	router := mux.NewRouter()
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		CSW3OpenSearchHandler(w, r, cat)
-	}).Methods("GET")
-	return router
-}
-
 // STACRouter provides STAC API Routing
-func STACRouter(cat *GeoCatalogue) *mux.Router {
+func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/stac/api", 301)
+		http.Redirect(w, r, "/api", 301)
 	}).Methods("GET")
 
-	router.HandleFunc("/stac", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/stac/api", 301)
-	}).Methods("GET")
-
-	router.HandleFunc("/stac/api", func(w http.ResponseWriter, r *http.Request) {
-		source, _ := ioutil.ReadFile(filepath.Join(cat.Config.Server.ApiDataBasedir, "stac-api.json"))
+	router.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+		source, _ := ioutil.ReadFile(cat.Config.Server.OpenAPIDef)
 		w.Header().Set("Content-Type", cat.Config.Server.MimeType)
 		fmt.Fprintf(w, "%s", source)
 	}).Methods("GET")
 
-	router.HandleFunc("/stac/items", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/items", func(w http.ResponseWriter, r *http.Request) {
 		STACItems(w, r, cat)
 	}).Methods("GET", "POST")
 
-	router.HandleFunc("/stac/items/{id}", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/items/{id}", func(w http.ResponseWriter, r *http.Request) {
 		STACItems(w, r, cat)
 	}).Methods("GET")
 
@@ -230,7 +179,7 @@ func STACRouter(cat *GeoCatalogue) *mux.Router {
 }
 
 // EmitResponseOK provides HTTP response for successful requests
-func EmitResponseOK(w http.ResponseWriter, contentType string, prettyPrint bool, results *search.Results) {
+func IEmitResponseOK(w http.ResponseWriter, contentType string, prettyPrint bool, results *search.Results) {
 	var jsonBytes []byte
 
 	w.Header().Set("Content-Type", contentType)
@@ -245,7 +194,7 @@ func EmitResponseOK(w http.ResponseWriter, contentType string, prettyPrint bool,
 }
 
 // EmitResponseNotOK provides HTTP response for unsuccessful requests
-func EmitResponseNotOK(w http.ResponseWriter, contentType string, prettyPrint bool, exception *search.Exception) {
+func IEmitResponseNotOK(w http.ResponseWriter, contentType string, prettyPrint bool, exception *search.Exception) {
 	var jsonBytes []byte
 
 	w.Header().Set("Content-Type", contentType)

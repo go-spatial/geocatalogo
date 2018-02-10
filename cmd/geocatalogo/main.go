@@ -46,6 +46,7 @@ import (
 	"github.com/go-spatial/geocatalogo/config"
 	"github.com/go-spatial/geocatalogo/metadata/parsers"
 	"github.com/go-spatial/geocatalogo/repository"
+	"github.com/go-spatial/geocatalogo/web"
 )
 
 func main() {
@@ -221,9 +222,9 @@ func main() {
 	} else if serveCommand.Parsed() {
 		fmt.Printf("Serving on port %d\n", *portFlag)
 		if *apiFlag == "stac" {
-			router = geocatalogo.STACRouter(cat)
+			router = web.STACRouter(cat)
 		} else { // csw3-opensearch is the default
-			router = geocatalogo.CSW3OpenSearchRouter(cat)
+			router = web.CSW3OpenSearchRouter(cat)
 		}
 		if err := http.ListenAndServe(fmt.Sprintf(":%d", *portFlag), router); err != nil {
 			fmt.Println(err)

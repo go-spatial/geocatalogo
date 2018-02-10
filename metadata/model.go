@@ -72,7 +72,7 @@ type Link struct {
 	URL         string `json:"url,omitempty"`
 }
 
-type geometry struct {
+type Geometry struct {
 	Type        string         `json:"type"`
 	Coordinates [][][2]float64 `json:"coordinates"`
 }
@@ -105,6 +105,6 @@ type properties struct {
 // Record describes a generic metadata record
 type Record struct {
 	Type       string     `json:"type"`
-	Geometry   geometry   `json:"geometry"`
+	Geometry   Geometry   `json:"geometry"`
 	Properties properties `json:"properties"`
 }
