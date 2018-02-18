@@ -16,24 +16,25 @@ geocatalogo's default backend is [Elasticsearch](https://www.elastic.co/) and
 requires an Elasticsearch endpoint as defined in configuration.
 
 ```bash
+# create directory for local env
+mkdir /path/to/golang-env
+export GOPATH=/path/to/golang-env
 # install dependencies
 go get golang.org/x/text/encoding
 go get github.com/sirupsen/logrus
 go get gopkg.in/yaml.v2
-go build ./...
-config/config.go:34:2: cannot find package "gopkg.in/yaml.v2"
+go get github.com/olivere/elastic
+go get github.com/golang/lint/...
 # install geocatalogo
 go get github.com/go-spatial/geocatalogo/...
-# install utilities/helpers
-# default backend
-go get github.com/olivere/elastic
-# or bleve backend
-go get github.com/blevesearch/bleve/...
-go install github.com/golang/lint/...
+cd $GOPATH/src/github.com/go-spatial/geocatalogo
 # set configuration
 # (sample in $GOPATH/src/github.com/go-spatial/geocatalogo/geocatalogo-config.env)
 cp geocatalogo-config.env local.env
 vi local.env  # update accordingly
+# GEOCATALOGO_SERVER_OPENAPI_DEF: path to stac-api.json
+# GEOCATALOGO_SERVER_URL: URL of geocatalogo instance for serving via HTTP
+# GEOCATALOGO_REPOSITORY_URL: URL to Elasticsearch
 . local.env
 ```
 
