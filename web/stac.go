@@ -41,31 +41,37 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type properties struct {
-	start    *time.Time `json:"start"`
-	end      *time.Time `json:"end"`
-	provider string     `json:"provider"`
-	license  string     `json:"license"`
+type Properties struct {
+	start    *time.Time `json:"start,omitempty"`
+	end      *time.Time `json:"end,omitempty"`
+	provider string     `json:"provider,omitempty"`
+	license  string     `json:"license,omitempty"`
 }
 
-type links struct {
-	rel  string `json:"rel"`
-	href string `json:"href"`
+type Link struct {
+	Rel  string `json:"rel"`
+	Href string `json:"href"`
 }
 
 type assets struct {
-	name string `json:"name"`
-	href string `json:"href"`
+	name string `json:"name,omitempty"`
+	href string `json:"href,omitempty"`
 }
 
 type STACItem struct {
-	Type       string     `json:"type"`
-	id         string     `json:"id"`
-	bbox       [4]float64 `json:"bbox"`
-	geometry   metadata.Geometry
-	properties properties `json:"properties"`
-	links      []links    `json:"links"`
-	assets     []assets   `json:"assets"`
+	Type       string              `json:"type,omitempty"`
+	Id         string              `json:"id,omitempty"`
+	BBox       [4]float64          `json:"bbox,omitempty"`
+	Geometry   metadata.Geometry   `json:"geometry,omitempty"`
+	Properties metadata.Properties `json:"properties,omitempty"`
+	Links      []Link              `json:"links,omitempty"`
+	Assets     []assets            `json:"assets,omitempty"`
+}
+
+type STACItemCollection struct {
+	Type          string     `json:"type"`
+	NextPageToken int        `json:"nextPageToken,omitempty"`
+	Items         []STACItem `json:"items"`
 }
 
 // STACAPIDescription provides the API description
@@ -83,6 +89,7 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 	var next int
 	var identifiers []string
 	var results search.Results
+	var stacItemCollection STACItemCollection
 	var tmp string
 
 	kvp := make(map[string][]string)
@@ -149,7 +156,11 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 		results = cat.Search(filter, bbox, timeVal, next, limit)
 	}
 
-	EmitResponseOK(w, cat.Config.Server.MimeType, cat.Config.Server.PrettyPrint, &results)
+	stacItemCollection = STACItemCollection{}
+
+	Results2STACItemCollection(&results, &stacItemCollection)
+
+	STACEmitResponseOK(w, cat.Config.Server.MimeType, cat.Config.Server.PrettyPrint, &stacItemCollection)
 	return
 }
 
@@ -179,15 +190,15 @@ func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 }
 
 // EmitResponseOK provides HTTP response for successful requests
-func IEmitResponseOK(w http.ResponseWriter, contentType string, prettyPrint bool, results *search.Results) {
+func STACEmitResponseOK(w http.ResponseWriter, contentType string, prettyPrint bool, sic *STACItemCollection) {
 	var jsonBytes []byte
 
 	w.Header().Set("Content-Type", contentType)
 	w.WriteHeader(200)
 	if prettyPrint == true {
-		jsonBytes, _ = json.MarshalIndent(results, "", "    ")
+		jsonBytes, _ = json.MarshalIndent(sic, "", "    ")
 	} else {
-		jsonBytes, _ = json.Marshal(results)
+		jsonBytes, _ = json.Marshal(sic)
 	}
 	fmt.Fprintf(w, "%s", jsonBytes)
 	return
@@ -206,5 +217,24 @@ func IEmitResponseNotOK(w http.ResponseWriter, contentType string, prettyPrint b
 		jsonBytes, _ = json.Marshal(exception)
 	}
 	fmt.Fprintf(w, "%s", jsonBytes)
+	return
+}
+
+func Results2STACItemCollection(r *search.Results, s *STACItemCollection) {
+	s.Type = "ItemCollection"
+	s.NextPageToken = r.NextRecord
+	for _, rec := range r.Records {
+		si := STACItem{}
+		si.Type = "Feature"
+		si.Id = rec.Properties.Identifier
+		si.BBox = rec.Geometry.Bounds()
+		si.Geometry = rec.Geometry
+		si.Properties = rec.Properties
+		for _, link := range rec.Properties.Links {
+			sil := Link{Rel: "self", Href: link.URL}
+			si.Links = append(si.Links, sil)
+		}
+		s.Items = append(s.Items, si)
+	}
 	return
 }

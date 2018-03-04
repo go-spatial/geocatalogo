@@ -84,7 +84,7 @@ type geocatalogo struct {
 	Typename string    `json:"type,omitempty"`
 }
 
-type properties struct {
+type Properties struct {
 	Identifier     string       `json:"identifier"`
 	Title          string       `json:"title,omitempty"`
 	Type           string       `json:"type,omitempty"`
@@ -106,5 +106,10 @@ type properties struct {
 type Record struct {
 	Type       string     `json:"type"`
 	Geometry   Geometry   `json:"geometry"`
-	Properties properties `json:"properties"`
+	Properties Properties `json:"properties"`
+}
+
+func (g *Geometry) Bounds() [4]float64 {
+	var a = [4]float64{g.Coordinates[0][0][0], g.Coordinates[0][0][1], g.Coordinates[0][2][0], g.Coordinates[0][2][1]}
+	return a
 }
