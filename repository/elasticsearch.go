@@ -37,6 +37,7 @@ import (
 	"time"
 
 	"github.com/olivere/elastic"
+	es_config "github.com/olivere/elastic/config"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-spatial/geocatalogo/config"
@@ -48,19 +49,27 @@ import (
 type Elasticsearch struct {
 	Type      string
 	URL       string
+	Username  string
+	Password  string
 	Mappings  map[string]string
 	Index     elastic.Client
 	IndexName string
 	TypeName  string
 }
 
-func createClient(repoURL string) (*elastic.Client, error) {
+func createClient(repo *config.Repository) (*elastic.Client, error) {
 	var esURL string
-
-	u, err := url.Parse(repoURL)
+	u, err := url.Parse(repo.URL)
 	esURL = fmt.Sprintf("%s://%s", u.Scheme, u.Host)
 
-	client, err := elastic.NewClient(elastic.SetURL(esURL))
+	c := es_config.Config{URL: esURL}
+	if repo.Username != "" && repo.Password != "" {
+		c.Username = repo.Username
+		c.Password = repo.Password
+	}
+
+	//client, err := elastic.NewClient(elastic.SetURL(esURL), elastic.SetBasicAuth(repo.Username, repo.Password), elastic.SetSniff(false))
+	client, err := elastic.NewClientFromConfig(&c)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +100,7 @@ func New(cfg config.Config, log *logrus.Logger) error {
 
 	ctx := context.Background()
 
-	client, err := createClient(cfg.Repository.URL)
+	client, err := createClient(&cfg.Repository)
 	if err != nil {
 		panic(err)
 	}
@@ -120,9 +129,13 @@ func Open(cfg config.Config, log *logrus.Logger) (Elasticsearch, error) {
 	log.Debug("Loading Repository " + cfg.Repository.URL)
 	log.Debug("Type: " + cfg.Repository.Type)
 	log.Debug("URL: " + cfg.Repository.URL)
+	log.Debug("Username: " + cfg.Repository.Username)
+	log.Debug("Password: " + cfg.Repository.Password)
+
 	s := Elasticsearch{
 		Type:      cfg.Repository.Type,
 		URL:       cfg.Repository.URL,
+		Username:  cfg.Repository.Username,
 		Mappings:  cfg.Repository.Mappings,
 		IndexName: getIndexName(cfg.Repository.URL),
 		TypeName:  getTypeName(cfg.Repository.URL),
@@ -130,7 +143,7 @@ func Open(cfg config.Config, log *logrus.Logger) (Elasticsearch, error) {
 	log.Debug("IndexName: " + s.IndexName)
 	log.Debug("TypeName: " + s.TypeName)
 
-	client, err := createClient(cfg.Repository.URL)
+	client, err := createClient(&cfg.Repository)
 	if err != nil {
 		return s, err
 	}

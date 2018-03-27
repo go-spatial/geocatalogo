@@ -34,6 +34,15 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Repository provides an object model for backends.
+type Repository struct {
+	Type     string
+	URL      string
+	Username string
+	Password string
+	Mappings map[string]string
+}
+
 // Config provides an object model for configuration.
 type Config struct {
 	Server struct {
@@ -79,11 +88,7 @@ type Config struct {
 			Role            string
 		}
 	}
-	Repository struct {
-		Type     string
-		URL      string
-		Mappings map[string]string
-	}
+	Repository Repository
 }
 
 // LoadFromEnv read environment variables into configuration
@@ -160,6 +165,10 @@ func LoadFromEnv() Config {
 			cfg.Repository.Type = pair[1]
 		case "GEOCATALOGO_REPOSITORY_URL":
 			cfg.Repository.URL = pair[1]
+		case "GEOCATALOGO_REPOSITORY_USERNAME":
+			cfg.Repository.Username = pair[1]
+		case "GEOCATALOGO_REPOSITORY_PASSWORD":
+			cfg.Repository.Password = pair[1]
 		default:
 			if strings.HasPrefix(pair[0], "GEOCATALOGO_REPOSITORY_MAPPINGS") {
 				tokens := strings.Split(pair[0], "GEOCATALOGO_REPOSITORY_MAPPINGS_")

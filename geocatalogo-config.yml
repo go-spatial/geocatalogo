@@ -69,6 +69,8 @@ metadata:
 repository:
     type: elasticsearch
     url: http://localhost:9200/metadata
+    username: scott
+    password: tiger
     mappings:
         identifier: identifier
         type: type
