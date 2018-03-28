@@ -68,8 +68,8 @@ func createClient(repo *config.Repository) (*elastic.Client, error) {
 		c.Password = repo.Password
 	}
 
-	//client, err := elastic.NewClient(elastic.SetURL(esURL), elastic.SetBasicAuth(repo.Username, repo.Password), elastic.SetSniff(false))
-	client, err := elastic.NewClientFromConfig(&c)
+	client, err := elastic.NewClient(elastic.SetURL(esURL), elastic.SetBasicAuth(repo.Username, repo.Password), elastic.SetSniff(false))
+	//client, err := elastic.NewClientFromConfig(&c)
 	if err != nil {
 		return nil, err
 	}
