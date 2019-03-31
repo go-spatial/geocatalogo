@@ -68,7 +68,7 @@ metadata:
 
 repository:
     type: elasticsearch
-    url: http://localhost:9200/metadata
+    url: http://localhost:9200/metadata/FeatureCollection
     username: scott
     password: tiger
     mappings:

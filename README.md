@@ -59,7 +59,7 @@ curl http://landsat-pds.s3.amazonaws.com/c1/L8/scene_list.gz | gunzip > /tmp/sce
 landsat-aws-importer --file /tmp/scene_list
 
 # OpenAerialMap Catalog (https://docs.openaerialmap.org/catalog/)
-curl https://api.openaerialmap.org/meta?limit=5000 > /tmp/oam.json
+curl "https://api.openaerialmap.org/meta?limit=5000" > /tmp/oam.json
 oam-catalog-importer --file /tmp/scene_list
 
 # search index
