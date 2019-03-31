@@ -40,7 +40,7 @@ import (
 )
 
 // VERSION provides the geocatalogo version installed.
-const VERSION string = "0.1.0"
+const VERSION string = "0.2-dev"
 
 var log = logrus.New()
 
