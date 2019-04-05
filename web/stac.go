@@ -168,9 +168,9 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/api", 301)
-	}).Methods("GET")
+//	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+//		http.Redirect(w, r, "/api", 301)
+//	}).Methods("GET")
 
 	router.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
 		source, _ := ioutil.ReadFile(cat.Config.Server.OpenAPIDef)
@@ -178,7 +178,7 @@ func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 		fmt.Fprintf(w, "%s", source)
 	}).Methods("GET")
 
-	router.HandleFunc("/items", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/stac/search", func(w http.ResponseWriter, r *http.Request) {
 		STACItems(w, r, cat)
 	}).Methods("GET", "POST")
 
@@ -226,11 +226,11 @@ func Results2STACItemCollection(r *search.Results, s *STACItemCollection) {
 	for _, rec := range r.Records {
 		si := STACItem{}
 		si.Type = "Feature"
-		si.Id = rec.Properties.Identifier
+		si.Id = rec.Identifier
 		si.BBox = rec.Geometry.Bounds()
 		si.Geometry = rec.Geometry
 		si.Properties = rec.Properties
-		for _, link := range rec.Properties.Links {
+		for _, link := range rec.Links {
 			sil := Link{Rel: "self", Href: link.URL}
 			si.Links = append(si.Links, sil)
 		}

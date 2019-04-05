@@ -128,7 +128,7 @@ func ParseCSWRecord(xmlBuffer []byte) (metadata.Record, error) {
 
 	metadataRecord = metadata.Record{}
 	metadataRecord.Type = "Feature"
-	metadataRecord.Properties.Identifier = cswRecord.Identifier
+	metadataRecord.Identifier = cswRecord.Identifier
 	metadataRecord.Properties.Type = cswRecord.Type
 	metadataRecord.Properties.Title = cswRecord.Title
 	metadataRecord.Properties.Abstract = cswRecord.Abstract
@@ -136,7 +136,7 @@ func ParseCSWRecord(xmlBuffer []byte) (metadata.Record, error) {
 
 	fmt.Println(cswRecord)
 	for _, ref := range cswRecord.References {
-		metadataRecord.Properties.Links = append(metadataRecord.Properties.Links, metadata.Link{URL: ref})
+		metadataRecord.Links = append(metadataRecord.Links, metadata.Link{URL: ref})
 	}
 
 	if (cswRecord.WGS84BoundingBox != boundingBox{}) {

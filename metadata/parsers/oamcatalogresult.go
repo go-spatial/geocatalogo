@@ -68,7 +68,7 @@ func ParseOAMCatalogResult(result OAMCatalogResult) (metadata.Record, error) {
 	metadataRecord := metadata.Record{}
 
 	metadataRecord.Type = "Feature"
-	metadataRecord.Properties.Identifier = result.Identifier
+	metadataRecord.Identifier = result.Identifier
 	metadataRecord.Properties.Type = "dataset"
 	metadataRecord.Properties.Title = result.Title
 	metadataRecord.Geometry.Type = "Polygon"
@@ -82,11 +82,11 @@ func ParseOAMCatalogResult(result OAMCatalogResult) (metadata.Record, error) {
 	mpi.AcquisitionDate = result.AcquisitionStart
 	metadataRecord.Properties.ProductInfo = &mpi
 
-	metadataRecord.Properties.Links = append(metadataRecord.Properties.Links, metadata.Link{URL: result.Uuid})
-	metadataRecord.Properties.Links = append(metadataRecord.Properties.Links, metadata.Link{URL: result.Properties.Thumbnail, Protocol: "WWW:LINK"})
-	metadataRecord.Properties.Links = append(metadataRecord.Properties.Links, metadata.Link{URL: result.Properties.TMS, Protocol: "OSGeo:TMS"})
-	metadataRecord.Properties.Links = append(metadataRecord.Properties.Links, metadata.Link{URL: result.Properties.WTMS, Protocol: "OGC:WMTS"})
-	metadataRecord.Properties.Links = append(metadataRecord.Properties.Links, metadata.Link{URL: result.MetaUri, Protocol: "WWW:LINK"})
+	metadataRecord.Links = append(metadataRecord.Links, metadata.Link{URL: result.Uuid})
+	metadataRecord.Links = append(metadataRecord.Links, metadata.Link{URL: result.Properties.Thumbnail, Protocol: "WWW:LINK"})
+	metadataRecord.Links = append(metadataRecord.Links, metadata.Link{URL: result.Properties.TMS, Protocol: "OSGeo:TMS"})
+	metadataRecord.Links = append(metadataRecord.Links, metadata.Link{URL: result.Properties.WTMS, Protocol: "OGC:WMTS"})
+	metadataRecord.Links = append(metadataRecord.Links, metadata.Link{URL: result.MetaUri, Protocol: "WWW:LINK"})
 
 	var bbox = [][][2]float64{{
 		{result.Bbox[0], result.Bbox[1]},

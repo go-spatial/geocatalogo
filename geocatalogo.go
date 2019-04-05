@@ -81,7 +81,7 @@ func NewFromEnv() (*GeoCatalogue, error) {
 
 // Index adds a metadata record to the Index
 func (c *GeoCatalogue) Index(record metadata.Record) bool {
-	log.Info("Indexing " + record.Properties.Identifier)
+	log.Info("Indexing " + record.Identifier)
 	err := c.Repository.Insert(record)
 	if err != nil {
 		log.Errorf("Indexing failed: %v", err)

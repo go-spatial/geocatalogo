@@ -217,7 +217,7 @@ func main() {
 		results := cat.Search(*termFlag, bbox, timeVal, *fromFlag, *sizeFlag)
 		fmt.Printf("Found %d records\n", results.Matches)
 		for _, result := range results.Records {
-			fmt.Printf("    %s - %s\n", result.Properties.Identifier, result.Properties.Title)
+			fmt.Printf("    %s - %s\n", result.Identifier, result.Properties.Title)
 		}
 	} else if serveCommand.Parsed() {
 		fmt.Printf("Serving on port %d\n", *portFlag)
