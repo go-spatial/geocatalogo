@@ -102,12 +102,12 @@ type Properties struct {
 
 // Record describes a generic metadata record
 type Record struct {
-	Identifier  string      `json:"id"`
-	Type        string      `json:"type"`
-	BoundingBox [4]float64  `json:"bbox"`
-	Geometry    Geometry    `json:"geometry"`
-	Properties  Properties  `json:"properties"`
-	Links       []Link      `json:"links,omitempty"`
+	Identifier  string     `json:"id"`
+	Type        string     `json:"type"`
+	BoundingBox [4]float64 `json:"bbox"`
+	Geometry    Geometry   `json:"geometry"`
+	Properties  Properties `json:"properties"`
+	Links       []Link     `json:"links,omitempty"`
 }
 
 func (g *Geometry) Bounds() [4]float64 {
