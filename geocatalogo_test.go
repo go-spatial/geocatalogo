@@ -26,7 +26,7 @@ func init() {
 
 func TestSmokeTest(t *testing.T) {
 	cat, _ := geocatalogo.NewFromEnv()
-	if cat.Config.Server.URL != "http://localhost:8001/" {
+	if cat.Config.Server.URL != "http://localhost:8001" {
 		t.Error("Incorrect value")
 	}
 }
