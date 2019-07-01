@@ -208,7 +208,7 @@ func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 	}).Methods("GET")
 
 	router.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
-		source, _ := ioutil.ReadFile(cat.Config.Server.OpenAPIDef)
+		source, _ := ioutil.ReadFile(cat.Config.Server.OpenAPI)
 		w.Header().Set("Content-Type", cat.Config.Server.MimeType)
 		fmt.Fprintf(w, "%s", source)
 	}).Methods("GET")

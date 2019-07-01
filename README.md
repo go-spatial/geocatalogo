@@ -33,7 +33,7 @@ cd $GOPATH/src/github.com/go-spatial/geocatalogo
 # (sample in $GOPATH/src/github.com/go-spatial/geocatalogo/geocatalogo-config.env)
 cp geocatalogo-config.env local.env
 vi local.env  # update accordingly
-# GEOCATALOGO_SERVER_OPENAPI_DEF: path to stac-api.json
+# GEOCATALOGO_SERVER_OPENAPI: path to OpenAPI Document
 # GEOCATALOGO_SERVER_URL: URL of geocatalogo instance for serving via HTTP
 # GEOCATALOGO_REPOSITORY_URL: URL to Elasticsearch
 . local.env

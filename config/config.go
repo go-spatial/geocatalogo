@@ -46,7 +46,7 @@ type Repository struct {
 // Config provides an object model for configuration.
 type Config struct {
 	Server struct {
-		OpenAPIDef  string
+		OpenAPI     string
 		URL         string
 		MimeType    string
 		Encoding    string
@@ -100,8 +100,8 @@ func LoadFromEnv() Config {
 		pair := strings.Split(e, "=")
 
 		switch pair[0] {
-		case "GEOCATALOGO_SERVER_OPENAPI_DEF":
-			cfg.Server.OpenAPIDef = pair[1]
+		case "GEOCATALOGO_SERVER_OPENAPI":
+			cfg.Server.OpenAPI = pair[1]
 		case "GEOCATALOGO_SERVER_URL":
 			cfg.Server.URL = strings.TrimRight(pair[1], "/")
 		case "GEOCATALOGO_SERVER_MIMETYPE":
