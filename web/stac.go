@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // The MIT License (MIT)
-// Copyright (c) 2018 Tom Kralidis
+// Copyright (c) 2019 Tom Kralidis
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -27,7 +27,6 @@
 package web
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -42,7 +41,7 @@ import (
 )
 
 // VERSION provides the supported version of the STAC API specification.
-const VERSION string = "0.6.2"
+const VERSION string = "0.7.0"
 
 type Properties struct {
 	start    *time.Time `json:"start,omitempty"`
@@ -52,8 +51,10 @@ type Properties struct {
 }
 
 type Link struct {
-	Rel  string `json:"rel"`
-	Href string `json:"href"`
+	Rel   string `json:"rel"`
+	Type  string `json:"type,omitempty"`
+	Title string `json:"title,omitempty"`
+	Href  string `json:"href"`
 }
 
 type assets struct {
@@ -71,18 +72,17 @@ type STACItem struct {
 	Assets     []assets            `json:"assets,omitempty"`
 }
 
-type STACItemCollection struct {
-	Type          string     `json:"type"`
-	NextPageToken int        `json:"nextPageToken,omitempty"`
-	Items         []STACItem `json:"items"`
+type STACFeatureCollection struct {
+	Type     string     `json:"type"`
+	Features []STACItem `json:"features"`
 }
 
 type STACCatalogDefinition struct {
 	Version     string `json:"stac_version"`
-	Id          string `json:"id,omitempty"`
+	Id          string `json:"id"`
 	Title       string `json:"title,omitempty"`
-	Description string `json:"description,omitempty"`
-	Links       []Link `json:"links,omitempty"`
+	Description string `json:"description"`
+	Links       []Link `json:"links"`
 }
 
 // STACAPIDescription provides the API description
@@ -90,12 +90,22 @@ func STACAPIDescription(w http.ResponseWriter, r *http.Request, cat *geocatalogo
 	var jsonBytes []byte
 	var scd STACCatalogDefinition
 
+	scd.Id = cat.Config.Metadata.Identification.Id
 	scd.Version = VERSION
 	scd.Title = cat.Config.Metadata.Identification.Title
+	scd.Description = cat.Config.Metadata.Identification.Abstract
 
-	jsonBytes = Struct2JSON(&scd, false)
+	var searchLink = Link{}
+	searchLink.Rel = "search"
+	searchLink.Type = "application/json"
+	searchLink.Title = "search"
+	searchLink.Href = fmt.Sprintf("%s/stac/search", cat.Config.Server.URL)
 
-	EmitResponse(w, 200, cat.Config.Server.MimeType, jsonBytes)
+	scd.Links = append(scd.Links, searchLink)
+
+	jsonBytes = geocatalogo.Struct2JSON(&scd, false)
+
+	geocatalogo.EmitResponse(w, 200, cat.Config.Server.MimeType, jsonBytes)
 	return
 }
 
@@ -110,7 +120,7 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 	var next int
 	var identifiers []string
 	var results search.Results
-	var stacItemCollection STACItemCollection
+	var stacFeatureCollection STACFeatureCollection
 	var tmp string
 
 	kvp := make(map[string][]string)
@@ -133,8 +143,8 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 			exception := search.Exception{
 				Code:        20002,
 				Description: "bbox format error (should be minx,miny,maxx,maxy)"}
-			jsonBytes = Struct2JSON(exception, cat.Config.Server.PrettyPrint)
-			EmitResponse(w, 400, cat.Config.Server.MimeType, jsonBytes)
+			jsonBytes = geocatalogo.Struct2JSON(exception, cat.Config.Server.PrettyPrint)
+			geocatalogo.EmitResponse(w, 400, cat.Config.Server.MimeType, jsonBytes)
 			return
 		}
 		for _, bt := range bboxTokens {
@@ -150,8 +160,8 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 				exception := search.Exception{
 					Code:        20002,
 					Description: "time format error (should be ISO 8601/RFC3339)"}
-				jsonBytes = Struct2JSON(exception, cat.Config.Server.PrettyPrint)
-				EmitResponse(w, 400, cat.Config.Server.MimeType, jsonBytes)
+				jsonBytes = geocatalogo.Struct2JSON(exception, cat.Config.Server.PrettyPrint)
+				geocatalogo.EmitResponse(w, 400, cat.Config.Server.MimeType, jsonBytes)
 				return
 			}
 			timeVal = append(timeVal, timestep)
@@ -179,13 +189,13 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 		results = cat.Search(filter, bbox, timeVal, next, limit)
 	}
 
-	stacItemCollection = STACItemCollection{}
+	stacFeatureCollection = STACFeatureCollection{}
 
-	Results2STACItemCollection(&results, &stacItemCollection)
+	Results2STACFeatureCollection(&results, &stacFeatureCollection)
 
-	jsonBytes = Struct2JSON(stacItemCollection, cat.Config.Server.PrettyPrint)
+	jsonBytes = geocatalogo.Struct2JSON(stacFeatureCollection, cat.Config.Server.PrettyPrint)
 
-	EmitResponse(w, 200, cat.Config.Server.MimeType, jsonBytes)
+	geocatalogo.EmitResponse(w, 200, cat.Config.Server.MimeType, jsonBytes)
 	return
 }
 
@@ -193,7 +203,7 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/stac", func(w http.ResponseWriter, r *http.Request) {
 		STACAPIDescription(w, r, cat)
 	}).Methods("GET")
 
@@ -214,30 +224,8 @@ func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 	return router
 }
 
-func Struct2JSON(iface interface{}, prettyPrint bool) []byte {
-	var jsonBytes []byte
-
-	if prettyPrint == true {
-		jsonBytes, _ = json.MarshalIndent(iface, "", "    ")
-	} else {
-		jsonBytes, _ = json.Marshal(iface)
-	}
-	return jsonBytes
-}
-
-// EmitResponseOK provides HTTP response for successful requests
-func EmitResponse(w http.ResponseWriter, code int, mime string, response []byte) {
-	w.Header().Set("Content-Type", mime)
-	if code != 200 {
-		w.WriteHeader(code)
-	}
-	fmt.Fprintf(w, "%s", response)
-	return
-}
-
-func Results2STACItemCollection(r *search.Results, s *STACItemCollection) {
-	s.Type = "ItemCollection"
-	s.NextPageToken = r.NextRecord
+func Results2STACFeatureCollection(r *search.Results, s *STACFeatureCollection) {
+	s.Type = "FeatureCollection"
 	for _, rec := range r.Records {
 		si := STACItem{}
 		si.Type = "Feature"
@@ -249,7 +237,7 @@ func Results2STACItemCollection(r *search.Results, s *STACItemCollection) {
 			sil := Link{Rel: "self", Href: link.URL}
 			si.Links = append(si.Links, sil)
 		}
-		s.Items = append(s.Items, si)
+		s.Features = append(s.Features, si)
 	}
 	return
 }

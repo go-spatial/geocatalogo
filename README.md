@@ -25,6 +25,7 @@ go get github.com/sirupsen/logrus
 go get gopkg.in/yaml.v2
 go get github.com/olivere/elastic
 go get github.com/golang/lint/...
+go get github.com/getkin/kin-openapi
 # install geocatalogo
 go get github.com/go-spatial/geocatalogo/...
 cd $GOPATH/src/github.com/go-spatial/geocatalogo

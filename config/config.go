@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // The MIT License (MIT)
-// Copyright (c) 2017 Tom Kralidis
+// Copyright (c) 2019 Tom Kralidis
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -60,6 +60,7 @@ type Config struct {
 	}
 	Metadata struct {
 		Identification struct {
+			Id                string
 			Title             string
 			Abstract          string
 			Keywords          []string
@@ -102,7 +103,7 @@ func LoadFromEnv() Config {
 		case "GEOCATALOGO_SERVER_OPENAPI_DEF":
 			cfg.Server.OpenAPIDef = pair[1]
 		case "GEOCATALOGO_SERVER_URL":
-			cfg.Server.URL = pair[1]
+			cfg.Server.URL = strings.TrimRight(pair[1], "/")
 		case "GEOCATALOGO_SERVER_MIMETYPE":
 			cfg.Server.MimeType = pair[1]
 		case "GEOCATALOGO_SERVER_ENCODING":
@@ -117,6 +118,8 @@ func LoadFromEnv() Config {
 			cfg.Logging.Level = pair[1]
 		case "GEOCATALOGO_LOGGING_LOGFILE":
 			cfg.Logging.Logfile = pair[1]
+		case "GEOCATALOGO_METADATA_IDENTIFICATION_ID":
+			cfg.Metadata.Identification.Id = pair[1]
 		case "GEOCATALOGO_METADATA_IDENTIFICATION_TITLE":
 			cfg.Metadata.Identification.Title = pair[1]
 		case "GEOCATALOGO_METADATA_IDENTIFICATION_ABSTRACT":
