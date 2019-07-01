@@ -160,7 +160,7 @@ func (r *Elasticsearch) Insert(record metadata.Record) error {
 	_, err := r.Index.Index().
 		Index(r.IndexName).
 		Type(r.TypeName).
-		Id(record.Properties.Identifier).
+		Id(record.Identifier).
 		BodyJson(record).
 		Do(ctx)
 
@@ -170,12 +170,12 @@ func (r *Elasticsearch) Insert(record metadata.Record) error {
 	return nil
 }
 
-// Update updates a record into the repository
+// Update updates a record in the repository
 func (r *Elasticsearch) Update() bool {
 	return true
 }
 
-// Delete deletes a record into the repository
+// Delete deletes a record from the repository
 func (r *Elasticsearch) Delete() bool {
 	return true
 }

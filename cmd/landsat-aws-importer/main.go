@@ -87,11 +87,11 @@ func main() {
 
 		metadataRecord.Type = "Feature"
 
-		metadataRecord.Properties.Identifier = line[0]
+		metadataRecord.Identifier = line[0]
 		metadataRecord.Properties.Title = line[1]
 		metadataRecord.Properties.Abstract = "Landsat 8 scene " + line[1]
-		metadataRecord.Properties.Links = append(metadataRecord.Properties.Links, metadata.Link{URL: downloadURL})
-		metadataRecord.Properties.Links = append(metadataRecord.Properties.Links, metadata.Link{URL: metadataURL})
+		metadataRecord.Links = append(metadataRecord.Links, metadata.Link{URL: downloadURL})
+		metadataRecord.Links = append(metadataRecord.Links, metadata.Link{URL: metadataURL})
 
 		pi := &metadata.ProductInfo{
 			ProductIdentifier: line[0],
@@ -126,7 +126,7 @@ func main() {
 
 		result := cat.Index(metadataRecord)
 		if !result {
-			fmt.Println("ERROR Indexing " + metadataRecord.Properties.Identifier)
+			fmt.Println("ERROR Indexing " + metadataRecord.Identifier)
 		}
 	}
 	return

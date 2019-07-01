@@ -85,7 +85,6 @@ type geocatalogo struct {
 }
 
 type Properties struct {
-	Identifier     string       `json:"identifier"`
 	Title          string       `json:"title,omitempty"`
 	Type           string       `json:"type,omitempty"`
 	Created        *time.Time   `json:"created,omitempty"`
@@ -97,16 +96,18 @@ type Properties struct {
 	License        string       `json:"license,omitempty"`
 	Language       string       `json:"language,omitempty"`
 	TemporalExtent *Temporal    `json:"temporal_extent,omitempty"`
-	Links          []Link       `json:"links,omitempty"`
 	ProductInfo    *ProductInfo `json:"product_info,omitempty"`
 	Geocatalogo    geocatalogo  `json:"_geocatalogo,omitempty"`
 }
 
 // Record describes a generic metadata record
 type Record struct {
-	Type       string     `json:"type"`
-	Geometry   Geometry   `json:"geometry"`
-	Properties Properties `json:"properties"`
+	Identifier  string     `json:"id"`
+	Type        string     `json:"type"`
+	BoundingBox [4]float64 `json:"bbox"`
+	Geometry    Geometry   `json:"geometry"`
+	Properties  Properties `json:"properties"`
+	Links       []Link     `json:"links,omitempty"`
 }
 
 func (g *Geometry) Bounds() [4]float64 {

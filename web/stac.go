@@ -41,6 +41,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// VERSION provides the supported version of the STAC API specification.
+const VERSION string = "0.6.2"
+
 type Properties struct {
 	start    *time.Time `json:"start,omitempty"`
 	end      *time.Time `json:"end,omitempty"`
@@ -74,13 +77,31 @@ type STACItemCollection struct {
 	Items         []STACItem `json:"items"`
 }
 
+type STACCatalogDefinition struct {
+	Version     string `json:"stac_version"`
+	Id          string `json:"id,omitempty"`
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
+	Links       []Link `json:"links,omitempty"`
+}
+
 // STACAPIDescription provides the API description
 func STACAPIDescription(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatalogue) {
-	fmt.Fprintf(w, "hi there")
+	var jsonBytes []byte
+	var scd STACCatalogDefinition
+
+	scd.Version = VERSION
+	scd.Title = cat.Config.Metadata.Identification.Title
+
+	jsonBytes = Struct2JSON(&scd, false)
+
+	EmitResponse(w, 200, cat.Config.Server.MimeType, jsonBytes)
+	return
 }
 
 // STACItems provides STAC compliant Items matching filters
 func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatalogue) {
+	var jsonBytes []byte
 	var value []string
 	var filter string
 	var bbox []float64
@@ -112,7 +133,8 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 			exception := search.Exception{
 				Code:        20002,
 				Description: "bbox format error (should be minx,miny,maxx,maxy)"}
-			EmitResponseNotOK(w, cat.Config.Server.MimeType, cat.Config.Server.PrettyPrint, &exception)
+			jsonBytes = Struct2JSON(exception, cat.Config.Server.PrettyPrint)
+			EmitResponse(w, 400, cat.Config.Server.MimeType, jsonBytes)
 			return
 		}
 		for _, bt := range bboxTokens {
@@ -128,7 +150,8 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 				exception := search.Exception{
 					Code:        20002,
 					Description: "time format error (should be ISO 8601/RFC3339)"}
-				EmitResponseNotOK(w, cat.Config.Server.MimeType, cat.Config.Server.PrettyPrint, &exception)
+				jsonBytes = Struct2JSON(exception, cat.Config.Server.PrettyPrint)
+				EmitResponse(w, 400, cat.Config.Server.MimeType, jsonBytes)
 				return
 			}
 			timeVal = append(timeVal, timestep)
@@ -160,7 +183,9 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 
 	Results2STACItemCollection(&results, &stacItemCollection)
 
-	STACEmitResponseOK(w, cat.Config.Server.MimeType, cat.Config.Server.PrettyPrint, &stacItemCollection)
+	jsonBytes = Struct2JSON(stacItemCollection, cat.Config.Server.PrettyPrint)
+
+	EmitResponse(w, 200, cat.Config.Server.MimeType, jsonBytes)
 	return
 }
 
@@ -169,7 +194,7 @@ func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/api", 301)
+		STACAPIDescription(w, r, cat)
 	}).Methods("GET")
 
 	router.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
@@ -178,7 +203,7 @@ func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 		fmt.Fprintf(w, "%s", source)
 	}).Methods("GET")
 
-	router.HandleFunc("/items", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/stac/search", func(w http.ResponseWriter, r *http.Request) {
 		STACItems(w, r, cat)
 	}).Methods("GET", "POST")
 
@@ -189,34 +214,24 @@ func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 	return router
 }
 
-// EmitResponseOK provides HTTP response for successful requests
-func STACEmitResponseOK(w http.ResponseWriter, contentType string, prettyPrint bool, sic *STACItemCollection) {
+func Struct2JSON(iface interface{}, prettyPrint bool) []byte {
 	var jsonBytes []byte
 
-	w.Header().Set("Content-Type", contentType)
-	w.WriteHeader(200)
 	if prettyPrint == true {
-		jsonBytes, _ = json.MarshalIndent(sic, "", "    ")
+		jsonBytes, _ = json.MarshalIndent(iface, "", "    ")
 	} else {
-		jsonBytes, _ = json.Marshal(sic)
+		jsonBytes, _ = json.Marshal(iface)
 	}
-	fmt.Fprintf(w, "%s", jsonBytes)
-	return
+	return jsonBytes
 }
 
-// EmitResponseNotOK provides HTTP response for unsuccessful requests
-func IEmitResponseNotOK(w http.ResponseWriter, contentType string, prettyPrint bool, exception *search.Exception) {
-	var jsonBytes []byte
-
-	w.Header().Set("Content-Type", contentType)
-	w.WriteHeader(400)
-
-	if prettyPrint == true {
-		jsonBytes, _ = json.MarshalIndent(exception, "", "    ")
-	} else {
-		jsonBytes, _ = json.Marshal(exception)
+// EmitResponseOK provides HTTP response for successful requests
+func EmitResponse(w http.ResponseWriter, code int, mime string, response []byte) {
+	w.Header().Set("Content-Type", mime)
+	if code != 200 {
+		w.WriteHeader(code)
 	}
-	fmt.Fprintf(w, "%s", jsonBytes)
+	fmt.Fprintf(w, "%s", response)
 	return
 }
 
@@ -226,11 +241,11 @@ func Results2STACItemCollection(r *search.Results, s *STACItemCollection) {
 	for _, rec := range r.Records {
 		si := STACItem{}
 		si.Type = "Feature"
-		si.Id = rec.Properties.Identifier
+		si.Id = rec.Identifier
 		si.BBox = rec.Geometry.Bounds()
 		si.Geometry = rec.Geometry
 		si.Properties = rec.Properties
-		for _, link := range rec.Properties.Links {
+		for _, link := range rec.Links {
 			sil := Link{Rel: "self", Href: link.URL}
 			si.Links = append(si.Links, sil)
 		}

@@ -71,7 +71,7 @@ func main() {
 		}
 		result := cat.Index(rec)
 		if !result {
-			fmt.Println("ERROR Indexing " + rec.Properties.Identifier)
+			fmt.Println("ERROR Indexing " + rec.Identifier)
 		}
 	}
 	return

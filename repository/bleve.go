@@ -100,7 +100,7 @@ func OpenBleve(cfg config.Config, log *logrus.Logger) (Bleve, error) {
 // Insert inserts a record into the repository
 func (r *Bleve) Insert(record metadata.Record) error {
 	record.Properties.Geocatalogo.Inserted = time.Now()
-	return r.Index.Index(record.Properties.Identifier, record)
+	return r.Index.Index(record.Identifier, record)
 }
 
 // Update updates a record into the repository
@@ -193,7 +193,7 @@ func transformResultToRecord(rec *bleveSearch.DocumentMatch) metadata.Record {
 		//mr.Geometry.Coordinates = [][2]float64{ll, ul, ur, lr, ll}
 	}
 
-	mr.Properties.Identifier = fmt.Sprintf("%v", rec.Fields["properties.identifier"])
+	mr.Identifier = fmt.Sprintf("%v", rec.Fields["properties.identifier"])
 	mr.Properties.Type = fmt.Sprintf("%v", rec.Fields["properties.type"])
 	mr.Properties.Title = fmt.Sprintf("%v", rec.Fields["properties.title"])
 	mr.Properties.Abstract = fmt.Sprintf("%v", rec.Fields["properties.abstract"])
