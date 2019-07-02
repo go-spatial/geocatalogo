@@ -28,7 +28,6 @@ package web
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -106,6 +105,22 @@ func STACAPIDescription(w http.ResponseWriter, r *http.Request, cat *geocatalogo
 	jsonBytes = geocatalogo.Struct2JSON(&scd, false)
 
 	geocatalogo.EmitResponse(w, 200, cat.Config.Server.MimeType, jsonBytes)
+	return
+}
+
+// STACOpenAPI generates an OpenAPI document or Swagger representation
+func STACOpenAPI(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatalogue) {
+	f := r.URL.Query().Get("f")
+	if f != "" && f == "json" {
+		bytes, _ := GenerateOpenAPIDocument(cat.Config)
+		geocatalogo.EmitResponse(w, 200, cat.Config.Server.MimeType, bytes)
+	} else {
+
+		data := map[string]interface{}{"config": cat.Config}
+		content, _ := geocatalogo.RenderTemplate(SwaggerHTML, data)
+
+		geocatalogo.EmitResponse(w, 200, "text/html", content)
+	}
 	return
 }
 
@@ -208,9 +223,7 @@ func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 	}).Methods("GET")
 
 	router.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
-		source, _ := ioutil.ReadFile(cat.Config.Server.OpenAPI)
-		w.Header().Set("Content-Type", cat.Config.Server.MimeType)
-		fmt.Fprintf(w, "%s", source)
+		STACOpenAPI(w, r, cat)
 	}).Methods("GET")
 
 	router.HandleFunc("/stac/search", func(w http.ResponseWriter, r *http.Request) {

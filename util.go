@@ -26,8 +26,10 @@
 package geocatalogo
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 )
 
@@ -51,4 +53,17 @@ func EmitResponse(w http.ResponseWriter, code int, mime string, response []byte)
 	}
 	fmt.Fprintf(w, "%s", response)
 	return
+}
+
+// RenderTemplate generates template text
+func RenderTemplate(templateString string, data map[string]interface{}) ([]byte, error) {
+	var tpl bytes.Buffer
+	t := template.New("template")
+	t, _ = t.Parse(templateString)
+
+	if err := t.Execute(&tpl, data); err != nil {
+		return tpl.Bytes(), err
+	}
+
+	return tpl.Bytes(), nil
 }

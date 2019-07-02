@@ -27,11 +27,8 @@
 package web
 
 import (
-	"fmt"
 	"github.com/getkin/kin-openapi/openapi3"
-	"reflect"
 
-	"github.com/go-spatial/geocatalogo"
 	"github.com/go-spatial/geocatalogo/config"
 )
 
@@ -41,7 +38,7 @@ var SwaggerHTML = `
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Swagger UI - FIXME TITLE</title>
+    <title>Swagger UI - {{ .config.Metadata.Identification.Title }}</title>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@3.22.2/swagger-ui.css" >
     <link rel="icon" type="image/png" href="https://unpkg.com/swagger-ui-dist@3.22.2/favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="https://unpkg.com/swagger-ui-dist@3.22.2/favicon-16x16.png" sizes="16x16" />
@@ -74,7 +71,7 @@ var SwaggerHTML = `
     window.onload = function() {
       // Begin Swagger UI call region
       ui = SwaggerUIBundle({
-        url: 'FIXME',
+        url: '{{ .config.Server.URL }}/api?f=json',
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
@@ -89,15 +86,15 @@ var SwaggerHTML = `
       // End Swagger UI call region
       window.ui = ui
     }
-  </script>
-  <style>.swagger-ui .topbar .download-url-wrapper { display: none } undefined</style>
+    </script>
+    <style>.swagger-ui .topbar .download-url-wrapper { display: none } undefined</style>
   </body>
 </html>`
 
 // GenerateOpenAPIDocument generates an OpenAPI Document
-func GenerateOpenAPIDocument(cfg config.Config) []byte {
-	var b []byte
-	openAPI3Schema := &openapi3.Swagger{
+func GenerateOpenAPIDocument(cfg config.Config) ([]byte, error) {
+	var openapiDoc *openapi3.Swagger
+	openapiDoc = &openapi3.Swagger{
 		OpenAPI: "3.0.0",
 		Info: openapi3.Info{
 			Title:       cfg.Metadata.Identification.Title,
@@ -109,8 +106,9 @@ func GenerateOpenAPIDocument(cfg config.Config) []byte {
 			},
 		},
 	}
-	b = geocatalogo.Struct2JSON(&openAPI3Schema, cfg.Server.PrettyPrint)
-	fmt.Println(reflect.TypeOf(openAPI3Schema).String())
-	fmt.Println(b)
-	return b
+	b, err := openapiDoc.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
 }

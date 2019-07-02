@@ -199,7 +199,8 @@ func main() {
 		}
 	} else if generateOpenAPIDocumentCommand.Parsed() {
 		testConfig := config.LoadFromEnv()
-		fmt.Println(web.GenerateOpenAPIDocument(testConfig))
+		b, _ := web.GenerateOpenAPIDocument(testConfig)
+		fmt.Printf("%s", b)
 	} else if searchCommand.Parsed() {
 		if *bboxFlag != "" {
 			bboxTokens := strings.Split(*bboxFlag, ",")
