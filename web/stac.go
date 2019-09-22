@@ -40,7 +40,7 @@ import (
 )
 
 // VERSION provides the supported version of the STAC API specification.
-const VERSION string = "0.7.0"
+const VERSION string = "0.8.0"
 
 type Properties struct {
 	start    *time.Time `json:"start,omitempty"`
@@ -68,12 +68,13 @@ type STACItem struct {
 	Geometry   metadata.Geometry   `json:"geometry,omitempty"`
 	Properties metadata.Properties `json:"properties,omitempty"`
 	Links      []Link              `json:"links,omitempty"`
-	Assets     []assets            `json:"assets,omitempty"`
+	Assets     []Link `json:"assets,omitempty"`
 }
 
 type STACFeatureCollection struct {
 	Type     string     `json:"type"`
 	Features []STACItem `json:"features"`
+	Links    []Link     `json:"links"`
 }
 
 type STACCatalogDefinition struct {
@@ -89,7 +90,7 @@ func STACAPIDescription(w http.ResponseWriter, r *http.Request, cat *geocatalogo
 	var jsonBytes []byte
 	var scd STACCatalogDefinition
 
-	scd.Id = cat.Config.Metadata.Identification.Id
+	scd.Id = "geocatalogo"
 	scd.Version = VERSION
 	scd.Title = cat.Config.Metadata.Identification.Title
 	scd.Description = cat.Config.Metadata.Identification.Abstract
@@ -167,7 +168,7 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 			bbox = append(bbox, bt)
 		}
 	}
-	value, _ = kvp["time"]
+	value, _ = kvp["datetime"]
 	if len(value) > 0 {
 		for _, t := range strings.Split(value[0], ",") {
 			timestep, err := time.Parse(time.RFC3339, t)
@@ -250,7 +251,13 @@ func Results2STACFeatureCollection(r *search.Results, s *STACFeatureCollection) 
 			sil := Link{Rel: "self", Href: link.URL}
 			si.Links = append(si.Links, sil)
 		}
+		for _, asset := range rec.Assets {
+			si.Assets = append(si.Assets, asset)
+		}
 		s.Features = append(s.Features, si)
 	}
+    nextLink := Link{Rel: "next"}
+	nextLink.Href = fmt.Sprintf("%s/stac/search?next=%d", "http://URL", r.NextRecord)
+    s.Links = append(s.Links, nextLink)
 	return
 }

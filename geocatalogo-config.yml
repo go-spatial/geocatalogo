@@ -38,6 +38,7 @@ logging:
 
 metadata:
     identification:
+        id: geocatalogo
         title: geocatalogo
         abstract: Geospatial Catalogue in Go
         keywords:

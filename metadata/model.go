@@ -67,6 +67,7 @@ type Temporal struct {
 // Link describes link constructs
 type Link struct {
 	Name        string `json:"name,omitempty"`
+    Type        string `json:"type,omitempty"`
 	Description string `json:"description,omitempty"`
 	Protocol    string `json:"protocol,omitempty"`
 	URL         string `json:"url,omitempty"`
@@ -108,6 +109,7 @@ type Record struct {
 	Geometry    Geometry   `json:"geometry"`
 	Properties  Properties `json:"properties"`
 	Links       []Link     `json:"links,omitempty"`
+	Assets []Link     `json:"assets,omitempty"`
 }
 
 func (g *Geometry) Bounds() [4]float64 {

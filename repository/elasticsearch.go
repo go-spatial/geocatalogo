@@ -248,6 +248,8 @@ func (r *Elasticsearch) Query(term string, bbox []float64, timeVal []time.Time, 
 		Query(query).Do(ctx)
 
 	if err != nil {
+        fmt.Println(err)
+        fmt.Println("JJJJ")
 		return err
 	}
 

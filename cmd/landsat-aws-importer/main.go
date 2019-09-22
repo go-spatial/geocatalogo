@@ -102,6 +102,12 @@ func main() {
 			Path:              path,
 			Row:               row,
 		}
+
+        for i := 0; i < 10; i++ {
+            url := fmt.Sprintf("%v_B%d.TIF", strings.Replace(metadataURL, "_MTL.json", "", 1), i)
+            metadataRecord.Assets = append(metadataRecord.Assets, metadata.Link{URL: url, Name: fmt.Sprintf("B%d", i), Type: "image/vnd.stac.geotiff"})
+        }
+
 		metadataRecord.Properties.ProductInfo = pi
 
 		metadataRecord.Properties.Geocatalogo.Inserted = time.Now()

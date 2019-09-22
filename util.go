@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+    "io/ioutil"
 	"net/http"
 )
 
@@ -45,7 +46,7 @@ func Struct2JSON(iface interface{}, prettyPrint bool) []byte {
 	return jsonBytes
 }
 
-// EmitResponseOK provides HTTP response for successful requests
+// EmitResponse provides HTTP response for successful requests
 func EmitResponse(w http.ResponseWriter, code int, mime string, response []byte) {
 	w.Header().Set("Content-Type", mime)
 	if code != 200 {
@@ -66,4 +67,18 @@ func RenderTemplate(templateString string, data map[string]interface{}) ([]byte,
 	}
 
 	return tpl.Bytes(), nil
+}
+
+// GetURL downloads a URL
+func GetURL(url string) string {
+    resp, err := http.Get(url)
+    if err != nil {
+        fmt.Println("ERROR")
+    }
+    defer resp.Body.Close()
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        fmt.Println("ERROR")
+    }
+    return string(body)
 }
