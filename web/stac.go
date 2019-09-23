@@ -68,7 +68,7 @@ type STACItem struct {
 	Geometry   metadata.Geometry   `json:"geometry,omitempty"`
 	Properties metadata.Properties `json:"properties,omitempty"`
 	Links      []Link              `json:"links,omitempty"`
-	Assets     []Link `json:"assets,omitempty"`
+	Assets     []Link              `json:"assets,omitempty"`
 }
 
 type STACFeatureCollection struct {
@@ -252,12 +252,13 @@ func Results2STACFeatureCollection(r *search.Results, s *STACFeatureCollection) 
 			si.Links = append(si.Links, sil)
 		}
 		for _, asset := range rec.Assets {
-			si.Assets = append(si.Assets, asset)
+			sila := Link{Href: asset.URL}
+			si.Assets = append(si.Assets, sila)
 		}
 		s.Features = append(s.Features, si)
 	}
-    nextLink := Link{Rel: "next"}
+	nextLink := Link{Rel: "next"}
 	nextLink.Href = fmt.Sprintf("%s/stac/search?next=%d", "http://URL", r.NextRecord)
-    s.Links = append(s.Links, nextLink)
+	s.Links = append(s.Links, nextLink)
 	return
 }

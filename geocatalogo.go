@@ -101,7 +101,7 @@ func (c *GeoCatalogue) Search(term string, bbox []float64, timeVal []time.Time, 
 	log.Info("Searching index")
 	err := c.Repository.Query(term, bbox, timeVal, from, size, &sr)
 	if err != nil {
-        log.Warn(err)
+		log.Warn(err)
 		return sr
 	}
 	return sr
@@ -113,7 +113,7 @@ func (c *GeoCatalogue) Get(identifiers []string) search.Results {
 	log.Info("Searching index")
 	err := c.Repository.Get(identifiers, &sr)
 	if err != nil {
-        log.Warn(err)
+		log.Warn(err)
 		return sr
 	}
 	return sr
