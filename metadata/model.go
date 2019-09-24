@@ -47,6 +47,7 @@ type date struct {
 // ProductInfo describes product specific metadata
 // for example EO data
 type ProductInfo struct {
+	Collection        string     `json:"collection,omitempty"`
 	Platform          string     `json:"platform,omitempty"`
 	ProductIdentifier string     `json:"product_id,omitempty"`
 	SceneIdentifier   string     `json:"scene_id,omitempty"`

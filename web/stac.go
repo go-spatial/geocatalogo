@@ -133,23 +133,17 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 	var bbox []float64
 	var timeVal []time.Time
 	var limit = 10
-	var next int
-	var identifiers []string
+	var page int = 1
+	var from int
+	var ids []string
+	var collections []string
 	var results search.Results
 	var stacFeatureCollection STACFeatureCollection
-	var tmp string
 
 	kvp := make(map[string][]string)
 
 	for k, v := range r.URL.Query() {
 		kvp[strings.ToLower(k)] = v
-	}
-
-	vars := mux.Vars(r)
-	tmp, ok := vars["id"]
-
-	if ok == true {
-		identifiers = append(identifiers, tmp)
 	}
 
 	value, _ = kvp["bbox"]
@@ -194,15 +188,32 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 		limit, _ = strconv.Atoi(value[0])
 	}
 
-	value, _ = kvp["next"]
+	value, _ = kvp["page"]
 	if len(value) > 0 {
-		next, _ = strconv.Atoi(value[0])
+		page, _ = strconv.Atoi(value[0])
 	}
 
-	if len(identifiers) > 0 {
-		results = cat.Get(identifiers)
+	if page == 1 {
+		from = 0
 	} else {
-		results = cat.Search(filter, bbox, timeVal, next, limit)
+		from = page*limit - (limit - 1)
+	}
+
+	value, _ = kvp["ids"]
+	if len(value) > 0 {
+		ids = strings.Split(value[0], ",")
+	}
+
+	value, _ = kvp["collections"]
+	if len(value) > 0 {
+		collections = strings.Split(value[0], ",")
+	}
+	fmt.Println(collections == nil)
+
+	if len(ids) > 0 {
+		results = cat.Get(ids)
+	} else {
+		results = cat.Search(collections, filter, bbox, timeVal, from, limit)
 	}
 
 	stacFeatureCollection = STACFeatureCollection{}
@@ -252,7 +263,7 @@ func Results2STACFeatureCollection(r *search.Results, s *STACFeatureCollection) 
 			si.Links = append(si.Links, sil)
 		}
 		for _, asset := range rec.Assets {
-			sila := Link{Href: asset.URL}
+			sila := Link{Rel: "download", Href: asset.URL}
 			si.Assets = append(si.Assets, sila)
 		}
 		s.Features = append(s.Features, si)

@@ -36,9 +36,9 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/olivere/elastic"
-	es_config "github.com/olivere/elastic/config"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/olivere/elastic.v6"
+	es_config "gopkg.in/olivere/elastic.v6/config"
 
 	"github.com/go-spatial/geocatalogo/config"
 	"github.com/go-spatial/geocatalogo/metadata"
@@ -181,7 +181,7 @@ func (r *Elasticsearch) Delete() bool {
 }
 
 // Query performs a search against the repository
-func (r *Elasticsearch) Query(term string, bbox []float64, timeVal []time.Time, from int, size int, sr *search.Results) error {
+func (r *Elasticsearch) Query(collections []string, term string, bbox []float64, timeVal []time.Time, from int, size int, sr *search.Results) error {
 	var mr metadata.Record
 	//	var query elastic.Query
 	ctx := context.Background()
@@ -234,6 +234,14 @@ func (r *Elasticsearch) Query(term string, bbox []float64, timeVal []time.Time, 
 		rawStringQueryTemplate.Execute(&tpl, vars)
 
 		query = query.Must(elastic.NewRawStringQuery(tpl.String()))
+	}
+	fmt.Println(collections)
+	if len(collections) > 0 {
+		c := make([]interface{}, len(collections))
+		for i, s := range collections {
+			c[i] = s
+		}
+		query = query.Must(elastic.NewTermsQuery("properties.product_info.collection", c...))
 	}
 
 	//src, err := query.Source()

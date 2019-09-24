@@ -94,6 +94,7 @@ func main() {
 		metadataRecord.Links = append(metadataRecord.Links, metadata.Link{URL: metadataURL})
 
 		pi := &metadata.ProductInfo{
+			Collection:        "landsat8",
 			ProductIdentifier: line[0],
 			SceneIdentifier:   line[1],
 			AcquisitionDate:   &acquisitionDate,

@@ -46,6 +46,7 @@ func CSW3OpenSearchHandler(w http.ResponseWriter, r *http.Request, cat *geocatal
 	var startPosition int
 	var maxRecords = 10
 	var value []string
+	var collections []string
 	var results search.Results
 
 	kvp := make(map[string][]string)
@@ -91,7 +92,7 @@ func CSW3OpenSearchHandler(w http.ResponseWriter, r *http.Request, cat *geocatal
 	}
 
 	if q != "" {
-		results = cat.Search(q, bbox, timeVal, startPosition, maxRecords)
+		results = cat.Search(collections, q, bbox, timeVal, startPosition, maxRecords)
 	}
 
 	if len(recordids) > 0 {
