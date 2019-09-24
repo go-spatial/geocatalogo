@@ -26,12 +26,6 @@
 // Package web - Simple HTTP Wrapper
 package web
 
-import (
-	"github.com/getkin/kin-openapi/openapi3"
-
-	"github.com/go-spatial/geocatalogo/config"
-)
-
 var SwaggerHTML = `
 <!-- HTML for static distribution bundle build -->
 <!DOCTYPE html>
@@ -90,25 +84,3 @@ var SwaggerHTML = `
     <style>.swagger-ui .topbar .download-url-wrapper { display: none } undefined</style>
   </body>
 </html>`
-
-// GenerateOpenAPIDocument generates an OpenAPI Document
-func GenerateOpenAPIDocument(cfg config.Config) ([]byte, error) {
-	var openapiDoc *openapi3.Swagger
-	openapiDoc = &openapi3.Swagger{
-		OpenAPI: "3.0.0",
-		Info: openapi3.Info{
-			Title:       cfg.Metadata.Identification.Title,
-			Description: cfg.Metadata.Identification.Abstract,
-			Version:     "0.0.1",
-			License: &openapi3.License{
-				Name: "MIT",
-				URL:  "https://opensource.org/licenses/MIT",
-			},
-		},
-	}
-	b, err := openapiDoc.MarshalJSON()
-	if err != nil {
-		return nil, err
-	}
-	return b, nil
-}

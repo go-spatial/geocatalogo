@@ -64,7 +64,6 @@ func main() {
 		fmt.Println("Commands: ")
 		fmt.Println(" createindex: add a metadata record to the index")
 		fmt.Println(" index: add a metadata record to the index")
-		fmt.Println(" generateOpenAPIDocument: generate OpenAPI document")
 		fmt.Println(" search: search the index")
 		fmt.Println(" get: get metadata record by id")
 		fmt.Println(" serve: run web server")
@@ -77,8 +76,6 @@ func main() {
 	indexCommand := flag.NewFlagSet("index", flag.ExitOnError)
 	fileFlag := indexCommand.String("file", "", "Path to metadata file")
 	dirFlag := indexCommand.String("dir", "", "Path to directory of metadata files")
-
-	generateOpenAPIDocumentCommand := flag.NewFlagSet("generateOpenAPIDocument", flag.ExitOnError)
 
 	searchCommand := flag.NewFlagSet("search", flag.ExitOnError)
 	collectionsFlag := searchCommand.String("collections", "", "Collections")
@@ -102,8 +99,6 @@ func main() {
 		createIndexCommand.Parse(os.Args[2:])
 	case "index":
 		indexCommand.Parse(os.Args[2:])
-	case "generateOpenAPIDocument":
-		generateOpenAPIDocumentCommand.Parse(os.Args[2:])
 	case "search":
 		searchCommand.Parse(os.Args[2:])
 	case "get":
@@ -199,10 +194,6 @@ func main() {
 			fmt.Printf("Function took %s (parse: %s, index: %s)\n", elapsed, parseElapsed, indexElapsed)
 			fileCounter++
 		}
-	} else if generateOpenAPIDocumentCommand.Parsed() {
-		testConfig := config.LoadFromEnv()
-		b, _ := web.GenerateOpenAPIDocument(testConfig)
-		fmt.Printf("%s", b)
 	} else if searchCommand.Parsed() {
 		if *collectionsFlag != "" {
 			collections = strings.Split(*collectionsFlag, ",")
