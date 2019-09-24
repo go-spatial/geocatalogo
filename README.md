@@ -23,8 +23,9 @@ export GOPATH=/path/to/golang-env
 go get golang.org/x/text/encoding
 go get github.com/sirupsen/logrus
 go get gopkg.in/yaml.v2
-go get github.com/olivere/elastic
-go get github.com/golang/lint/...
+go get github.com/olivere/elastic.v6/..
+go get golang.org/x/lint/...
+go get github.com/getkin/kin-openapi
 # install geocatalogo
 go get github.com/go-spatial/geocatalogo/...
 cd $GOPATH/src/github.com/go-spatial/geocatalogo
@@ -32,7 +33,7 @@ cd $GOPATH/src/github.com/go-spatial/geocatalogo
 # (sample in $GOPATH/src/github.com/go-spatial/geocatalogo/geocatalogo-config.env)
 cp geocatalogo-config.env local.env
 vi local.env  # update accordingly
-# GEOCATALOGO_SERVER_OPENAPI_DEF: path to stac-api.json
+# GEOCATALOGO_SERVER_OPENAPI: path to OpenAPI Document
 # GEOCATALOGO_SERVER_URL: URL of geocatalogo instance for serving via HTTP
 # GEOCATALOGO_REPOSITORY_URL: URL to Elasticsearch
 . local.env

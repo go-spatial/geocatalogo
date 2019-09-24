@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // The MIT License (MIT)
-// Copyright (c) 2018 Tom Kralidis
+// Copyright (c) 2019 Tom Kralidis
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -94,6 +94,7 @@ func main() {
 		metadataRecord.Links = append(metadataRecord.Links, metadata.Link{URL: metadataURL})
 
 		pi := &metadata.ProductInfo{
+			Collection:        "landsat8",
 			ProductIdentifier: line[0],
 			SceneIdentifier:   line[1],
 			AcquisitionDate:   &acquisitionDate,
@@ -102,6 +103,12 @@ func main() {
 			Path:              path,
 			Row:               row,
 		}
+
+		for i := 0; i < 10; i++ {
+			url := fmt.Sprintf("%v_B%d.TIF", strings.Replace(metadataURL, "_MTL.json", "", 1), i)
+			metadataRecord.Assets = append(metadataRecord.Assets, metadata.Link{URL: url, Name: fmt.Sprintf("B%d", i), Type: "image/vnd.stac.geotiff"})
+		}
+
 		metadataRecord.Properties.ProductInfo = pi
 
 		metadataRecord.Properties.Geocatalogo.Inserted = time.Now()

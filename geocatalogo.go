@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // The MIT License (MIT)
-// Copyright (c) 2017 Tom Kralidis
+// Copyright (c) 2019 Tom Kralidis
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -96,11 +96,12 @@ func (c *GeoCatalogue) UnIndex() bool {
 }
 
 // Search performs a search/query against the Index
-func (c *GeoCatalogue) Search(term string, bbox []float64, timeVal []time.Time, from int, size int) search.Results {
+func (c *GeoCatalogue) Search(collections []string, term string, bbox []float64, timeVal []time.Time, from int, size int) search.Results {
 	sr := search.Results{}
 	log.Info("Searching index")
-	err := c.Repository.Query(term, bbox, timeVal, from, size, &sr)
+	err := c.Repository.Query(collections, term, bbox, timeVal, from, size, &sr)
 	if err != nil {
+		log.Warn(err)
 		return sr
 	}
 	return sr
@@ -112,6 +113,7 @@ func (c *GeoCatalogue) Get(identifiers []string) search.Results {
 	log.Info("Searching index")
 	err := c.Repository.Get(identifiers, &sr)
 	if err != nil {
+		log.Warn(err)
 		return sr
 	}
 	return sr

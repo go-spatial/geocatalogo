@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // The MIT License (MIT)
-// Copyright (c) 2017 Tom Kralidis
+// Copyright (c) 2019 Tom Kralidis
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -46,7 +46,7 @@ type Repository struct {
 // Config provides an object model for configuration.
 type Config struct {
 	Server struct {
-		OpenAPIDef  string
+		OpenAPI     string
 		URL         string
 		MimeType    string
 		Encoding    string
@@ -60,6 +60,7 @@ type Config struct {
 	}
 	Metadata struct {
 		Identification struct {
+			Id                string
 			Title             string
 			Abstract          string
 			Keywords          []string
@@ -68,6 +69,10 @@ type Config struct {
 			AccessConstraints string
 		}
 		Provider struct {
+			Name string
+			URL  string
+		}
+		License struct {
 			Name string
 			URL  string
 		}
@@ -99,10 +104,10 @@ func LoadFromEnv() Config {
 		pair := strings.Split(e, "=")
 
 		switch pair[0] {
-		case "GEOCATALOGO_SERVER_OPENAPI_DEF":
-			cfg.Server.OpenAPIDef = pair[1]
+		case "GEOCATALOGO_SERVER_OPENAPI":
+			cfg.Server.OpenAPI = pair[1]
 		case "GEOCATALOGO_SERVER_URL":
-			cfg.Server.URL = pair[1]
+			cfg.Server.URL = strings.TrimRight(pair[1], "/")
 		case "GEOCATALOGO_SERVER_MIMETYPE":
 			cfg.Server.MimeType = pair[1]
 		case "GEOCATALOGO_SERVER_ENCODING":
@@ -117,6 +122,8 @@ func LoadFromEnv() Config {
 			cfg.Logging.Level = pair[1]
 		case "GEOCATALOGO_LOGGING_LOGFILE":
 			cfg.Logging.Logfile = pair[1]
+		case "GEOCATALOGO_METADATA_IDENTIFICATION_ID":
+			cfg.Metadata.Identification.Id = pair[1]
 		case "GEOCATALOGO_METADATA_IDENTIFICATION_TITLE":
 			cfg.Metadata.Identification.Title = pair[1]
 		case "GEOCATALOGO_METADATA_IDENTIFICATION_ABSTRACT":
@@ -132,6 +139,10 @@ func LoadFromEnv() Config {
 		case "GEOCATALOGO_METADATA_PROVIDER_NAME":
 			cfg.Metadata.Provider.Name = pair[1]
 		case "GEOCATALOGO_METADATA_PROVIDER_URL":
+			cfg.Metadata.Provider.URL = pair[1]
+		case "GEOCATALOGO_METADATA_LICENSE_NAME":
+			cfg.Metadata.Provider.Name = pair[1]
+		case "GEOCATALOGO_METADATA_LICENSE_URL":
 			cfg.Metadata.Provider.URL = pair[1]
 		case "GEOCATALOGO_METADATA_CONTACT_NAME":
 			cfg.Metadata.Contact.Name = pair[1]

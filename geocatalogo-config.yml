@@ -38,6 +38,7 @@ logging:
 
 metadata:
     identification:
+        id: geocatalogo
         title: geocatalogo
         abstract: Geospatial Catalogue in Go
         keywords:
@@ -50,6 +51,9 @@ metadata:
     provider:
         name: Organization Name
         url: https://github.com/go-spatial/geocatalogo
+    license:
+        name: The MIT License (MIT)
+        url: https://github.com/geopython/pygeoapi/blob/master/LICENSE.md
     contact:
         name: Lastname, Firstname
         position: Position Title

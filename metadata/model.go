@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // The MIT License (MIT)
-// Copyright (c) 2017 Tom Kralidis
+// Copyright (c) 2019 Tom Kralidis
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -47,6 +47,7 @@ type date struct {
 // ProductInfo describes product specific metadata
 // for example EO data
 type ProductInfo struct {
+	Collection        string     `json:"collection,omitempty"`
 	Platform          string     `json:"platform,omitempty"`
 	ProductIdentifier string     `json:"product_id,omitempty"`
 	SceneIdentifier   string     `json:"scene_id,omitempty"`
@@ -67,6 +68,7 @@ type Temporal struct {
 // Link describes link constructs
 type Link struct {
 	Name        string `json:"name,omitempty"`
+	Type        string `json:"type,omitempty"`
 	Description string `json:"description,omitempty"`
 	Protocol    string `json:"protocol,omitempty"`
 	URL         string `json:"url,omitempty"`
@@ -108,6 +110,7 @@ type Record struct {
 	Geometry    Geometry   `json:"geometry"`
 	Properties  Properties `json:"properties"`
 	Links       []Link     `json:"links,omitempty"`
+	Assets      []Link     `json:"assets,omitempty"`
 }
 
 func (g *Geometry) Bounds() [4]float64 {
