@@ -24,7 +24,7 @@
 ##############################################################################
 
 server:
-    openapi_def: /path/to/basedir
+    openapi: /path/to/stac-0.8.0.yml
     url: http://localhost:8001/
     mimetype: application/json; charset=UTF-8
     encoding: utf-8
