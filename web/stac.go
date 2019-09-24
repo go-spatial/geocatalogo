@@ -29,6 +29,7 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -121,10 +122,12 @@ func STACAPIDescription(w http.ResponseWriter, r *http.Request, cat *geocatalogo
 func STACOpenAPI(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatalogue) {
 	f := r.URL.Query().Get("f")
 	if f != "" && f == "json" {
-		bytes, _ := GenerateOpenAPIDocument(cat.Config)
-		geocatalogo.EmitResponse(w, 200, cat.Config.Server.MimeType, bytes)
+		source, _ := ioutil.ReadFile(cat.Config.Server.OpenAPI)
+		data := map[string]interface{}{"config": cat.Config}
+		content, _ := geocatalogo.RenderTemplate(string(source), data)
+		w.Header().Set("Content-Type", cat.Config.Server.MimeType)
+		fmt.Fprintf(w, "%s", content)
 	} else {
-
 		data := map[string]interface{}{"config": cat.Config}
 		content, _ := geocatalogo.RenderTemplate(SwaggerHTML, data)
 

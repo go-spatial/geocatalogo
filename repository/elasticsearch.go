@@ -235,7 +235,6 @@ func (r *Elasticsearch) Query(collections []string, term string, bbox []float64,
 
 		query = query.Must(elastic.NewRawStringQuery(tpl.String()))
 	}
-	fmt.Println(collections)
 	if len(collections) > 0 {
 		c := make([]interface{}, len(collections))
 		for i, s := range collections {
