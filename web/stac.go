@@ -46,7 +46,7 @@ const VERSION string = "0.8.0"
 
 type STACSearch struct {
 	Limit       int        `json:"limit,omitempty"`
-	Datetime    []string   `json:"datetime,omitempty"`
+	Datetime    string     `json:"datetime,omitempty"`
 	Collections []string   `json:"collections,omitempty"`
 	Bbox        [4]float64 `json:"bbox,omitempty"`
 }
@@ -174,7 +174,7 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 			kvp["limit"] = []string{strconv.Itoa(stacSearch.Limit)}
 		}
 		if len(stacSearch.Datetime) > 0 {
-			kvp["datetime"] = stacSearch.Datetime
+			kvp["datetime"] = []string{stacSearch.Datetime}
 		}
 		if stacSearch.Collections != nil {
 			kvp["collections"] = stacSearch.Collections
@@ -204,7 +204,7 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 	}
 	value, _ = kvp["datetime"]
 	if len(value) > 0 {
-		for _, t := range strings.Split(value[0], ",") {
+		for _, t := range strings.Split(value[0], "/") {
 			timestep, err := time.Parse(time.RFC3339, t)
 			if err != nil {
 				exception := search.Exception{

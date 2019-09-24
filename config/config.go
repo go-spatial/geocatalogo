@@ -72,6 +72,10 @@ type Config struct {
 			Name string
 			URL  string
 		}
+		License struct {
+			Name string
+			URL  string
+		}
 		Contact struct {
 			Name            string
 			Position        string
@@ -135,6 +139,10 @@ func LoadFromEnv() Config {
 		case "GEOCATALOGO_METADATA_PROVIDER_NAME":
 			cfg.Metadata.Provider.Name = pair[1]
 		case "GEOCATALOGO_METADATA_PROVIDER_URL":
+			cfg.Metadata.Provider.URL = pair[1]
+		case "GEOCATALOGO_METADATA_LICENSE_NAME":
+			cfg.Metadata.Provider.Name = pair[1]
+		case "GEOCATALOGO_METADATA_LICENSE_URL":
 			cfg.Metadata.Provider.URL = pair[1]
 		case "GEOCATALOGO_METADATA_CONTACT_NAME":
 			cfg.Metadata.Contact.Name = pair[1]
