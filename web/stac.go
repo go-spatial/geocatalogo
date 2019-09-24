@@ -27,6 +27,7 @@
 package web
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -41,6 +42,13 @@ import (
 
 // VERSION provides the supported version of the STAC API specification.
 const VERSION string = "0.8.0"
+
+type STACSearch struct {
+	Limit       int        `json:"limit,omitempty"`
+	Datetime    []string   `json:"datetime,omitempty"`
+	Collections []string   `json:"collections,omitempty"`
+	Bbox        [4]float64 `json:"bbox,omitempty"`
+}
 
 type Properties struct {
 	start    *time.Time `json:"start,omitempty"`
@@ -142,13 +150,42 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 
 	kvp := make(map[string][]string)
 
-	for k, v := range r.URL.Query() {
-		kvp[strings.ToLower(k)] = v
+	if r.Method == "GET" {
+		for k, v := range r.URL.Query() {
+			kvp[strings.ToLower(k)] = v
+		}
+	} else if r.Method == "POST" {
+		stacSearch := STACSearch{}
+
+		err := json.NewDecoder(r.Body).Decode(&stacSearch)
+		if err != nil {
+			fmt.Println(err)
+			exception := search.Exception{
+				Code:        20002,
+				Description: "JSON parsing error"}
+			jsonBytes = geocatalogo.Struct2JSON(exception, cat.Config.Server.PrettyPrint)
+			geocatalogo.EmitResponse(w, 400, cat.Config.Server.MimeType, jsonBytes)
+			return
+		}
+		if stacSearch.Limit > 0 {
+			kvp["limit"] = []string{strconv.Itoa(stacSearch.Limit)}
+		}
+		if len(stacSearch.Datetime) > 0 {
+			kvp["datetime"] = stacSearch.Datetime
+		}
+		if stacSearch.Collections != nil {
+			kvp["collections"] = stacSearch.Collections
+		}
+		if stacSearch.Bbox != [4]float64{0, 0, 0, 0} {
+			tmp := fmt.Sprintf("%f,%f,%f,%f", stacSearch.Bbox[0], stacSearch.Bbox[1], stacSearch.Bbox[2], stacSearch.Bbox[3])
+			kvp["bbox"] = []string{tmp}
+		}
 	}
 
 	value, _ = kvp["bbox"]
 	if len(value) > 0 {
 		bboxTokens := strings.Split(value[0], ",")
+		fmt.Println(bboxTokens)
 		if len(bboxTokens) != 4 {
 			exception := search.Exception{
 				Code:        20002,
