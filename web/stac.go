@@ -282,6 +282,10 @@ func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 		STACItems(w, r, cat)
 	}).Methods("GET", "POST")
 
+	router.HandleFunc("/items", func(w http.ResponseWriter, r *http.Request) {
+		STACItems(w, r, cat)
+	}).Methods("GET", "POST")
+
 	router.HandleFunc("/items/{id}", func(w http.ResponseWriter, r *http.Request) {
 		STACItems(w, r, cat)
 	}).Methods("GET")
