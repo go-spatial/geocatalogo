@@ -23,9 +23,8 @@ export GOPATH=/path/to/golang-env
 go get golang.org/x/text/encoding
 go get github.com/sirupsen/logrus
 go get gopkg.in/yaml.v2
-go get github.com/olivere/elastic.v6/..
+go get gopkg.in/olivere/elastic.v6/..
 go get golang.org/x/lint/...
-go get github.com/getkin/kin-openapi
 # install geocatalogo
 go get github.com/go-spatial/geocatalogo/...
 cd $GOPATH/src/github.com/go-spatial/geocatalogo
