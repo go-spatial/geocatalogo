@@ -53,6 +53,7 @@ type Config struct {
 		Language    string
 		PrettyPrint bool
 		Limit       int
+		CORS        bool
 	}
 	Logging struct {
 		Level   string
@@ -118,6 +119,8 @@ func LoadFromEnv() Config {
 			cfg.Server.PrettyPrint, _ = strconv.ParseBool(pair[1])
 		case "GEOCATALOGO_SERVER_LIMIT":
 			cfg.Server.Limit, _ = strconv.Atoi(pair[1])
+		case "GEOCATALOGO_SERVER_CORS":
+			cfg.Server.CORS, _ = strconv.ParseBool(pair[1])
 		case "GEOCATALOGO_LOGGING_LEVEL":
 			cfg.Logging.Level = pair[1]
 		case "GEOCATALOGO_LOGGING_LOGFILE":

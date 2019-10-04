@@ -7,9 +7,9 @@ info:
   contact:
     name: {{ .config.Metadata.Provider.Name }}
     url: "{{ .config.Metadata.Provider.URL }}"
-#  license:
-#    name: {{ .config.Metadata.License.Name }}
-#    url: "{{ .config.Metadata.License.URL }}"
+  license:
+    name: {{ .config.Metadata.License.Name }}
+    url: "{{ .config.Metadata.License.URL }}"
 servers:
   - url: "{{ .config.Server.URL }}"
 paths:

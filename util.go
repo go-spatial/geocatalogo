@@ -47,8 +47,11 @@ func Struct2JSON(iface interface{}, prettyPrint bool) []byte {
 }
 
 // EmitResponse provides HTTP response for successful requests
-func EmitResponse(w http.ResponseWriter, code int, mime string, response []byte) {
-	w.Header().Set("Content-Type", mime)
+func EmitResponse(c *GeoCatalogue, w http.ResponseWriter, code int, response []byte) {
+	w.Header().Set("Content-Type", c.Config.Server.MimeType)
+	if c.Config.Server.CORS == true {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+	}
 	if code != 200 {
 		w.WriteHeader(code)
 	}

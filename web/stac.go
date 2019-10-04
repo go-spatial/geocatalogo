@@ -81,9 +81,11 @@ type STACItem struct {
 }
 
 type STACFeatureCollection struct {
-	Type     string     `json:"type"`
-	Features []STACItem `json:"features"`
-	Links    []Link     `json:"links"`
+	Type           string     `json:"type"`
+	Features       []STACItem `json:"features"`
+	Links          []Link     `json:"links"`
+	NumberMatched  int        `json:"numberMatched"`
+	NumberReturned int        `json:"numberReturned"`
 }
 
 type STACCatalogDefinition struct {
@@ -114,7 +116,7 @@ func STACAPIDescription(w http.ResponseWriter, r *http.Request, cat *geocatalogo
 
 	jsonBytes = geocatalogo.Struct2JSON(&scd, false)
 
-	geocatalogo.EmitResponse(w, 200, cat.Config.Server.MimeType, jsonBytes)
+	geocatalogo.EmitResponse(cat, w, 200, jsonBytes)
 	return
 }
 
@@ -131,7 +133,8 @@ func STACOpenAPI(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCat
 		data := map[string]interface{}{"config": cat.Config}
 		content, _ := geocatalogo.RenderTemplate(SwaggerHTML, data)
 
-		geocatalogo.EmitResponse(w, 200, "text/html", content)
+		cat.Config.Server.MimeType = "text/html"
+		geocatalogo.EmitResponse(cat, w, 200, content)
 	}
 	return
 }
@@ -167,7 +170,7 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 				Code:        20002,
 				Description: "JSON parsing error"}
 			jsonBytes = geocatalogo.Struct2JSON(exception, cat.Config.Server.PrettyPrint)
-			geocatalogo.EmitResponse(w, 400, cat.Config.Server.MimeType, jsonBytes)
+			geocatalogo.EmitResponse(cat, w, 400, jsonBytes)
 			return
 		}
 		if stacSearch.Limit > 0 {
@@ -194,7 +197,7 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 				Code:        20002,
 				Description: "bbox format error (should be minx,miny,maxx,maxy)"}
 			jsonBytes = geocatalogo.Struct2JSON(exception, cat.Config.Server.PrettyPrint)
-			geocatalogo.EmitResponse(w, 400, cat.Config.Server.MimeType, jsonBytes)
+			geocatalogo.EmitResponse(cat, w, 400, jsonBytes)
 			return
 		}
 		for _, bt := range bboxTokens {
@@ -211,7 +214,7 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 					Code:        20002,
 					Description: "time format error (should be ISO 8601/RFC3339)"}
 				jsonBytes = geocatalogo.Struct2JSON(exception, cat.Config.Server.PrettyPrint)
-				geocatalogo.EmitResponse(w, 400, cat.Config.Server.MimeType, jsonBytes)
+				geocatalogo.EmitResponse(cat, w, 400, jsonBytes)
 				return
 			}
 			timeVal = append(timeVal, timestep)
@@ -258,11 +261,11 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 
 	stacFeatureCollection = STACFeatureCollection{}
 
-	Results2STACFeatureCollection(&results, &stacFeatureCollection)
+	Results2STACFeatureCollection(cat.Config.Server.URL, &results, &stacFeatureCollection)
 
 	jsonBytes = geocatalogo.Struct2JSON(stacFeatureCollection, cat.Config.Server.PrettyPrint)
 
-	geocatalogo.EmitResponse(w, 200, cat.Config.Server.MimeType, jsonBytes)
+	geocatalogo.EmitResponse(cat, w, 200, jsonBytes)
 	return
 }
 
@@ -293,7 +296,7 @@ func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 	return router
 }
 
-func Results2STACFeatureCollection(r *search.Results, s *STACFeatureCollection) {
+func Results2STACFeatureCollection(url string, r *search.Results, s *STACFeatureCollection) {
 	s.Type = "FeatureCollection"
 	for _, rec := range r.Records {
 		si := STACItem{}
@@ -313,7 +316,9 @@ func Results2STACFeatureCollection(r *search.Results, s *STACFeatureCollection) 
 		s.Features = append(s.Features, si)
 	}
 	nextLink := Link{Rel: "next"}
-	nextLink.Href = fmt.Sprintf("%s/stac/search?next=%d", "http://URL", r.NextRecord)
+	nextLink.Href = fmt.Sprintf("%s/stac/search?next=%d", url, r.NextRecord)
 	s.Links = append(s.Links, nextLink)
+	s.NumberMatched = r.Matches
+	s.NumberReturned = r.Returned
 	return
 }
