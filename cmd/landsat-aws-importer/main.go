@@ -124,6 +124,7 @@ func main() {
 		}}
 
 		metadataRecord.Geometry.Coordinates = coordinates
+		metadataRecord.BoundingBox = metadataRecord.Geometry.Bounds()
 
 		metadataRecord.Properties.Geocatalogo.Schema = "local"
 		metadataRecord.Properties.Geocatalogo.Source = metadataURL

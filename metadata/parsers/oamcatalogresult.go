@@ -77,6 +77,7 @@ func ParseOAMCatalogResult(result OAMCatalogResult) (metadata.Record, error) {
 	metadataRecord.Properties.Contacts = append(metadataRecord.Properties.Contacts, metadata.Contact{Value: result.Contact})
 
 	mpi := metadata.ProductInfo{}
+	mpi.Collection = "openaerialmap"
 	mpi.Platform = result.Platform
 	mpi.SensorIdentifier = result.Properties.Sensor
 	mpi.AcquisitionDate = result.AcquisitionStart
@@ -97,6 +98,7 @@ func ParseOAMCatalogResult(result OAMCatalogResult) (metadata.Record, error) {
 	}}
 
 	metadataRecord.Geometry.Coordinates = bbox
+	metadataRecord.BoundingBox = metadataRecord.Geometry.Bounds()
 
 	metadataRecord.Properties.Geocatalogo.Typename = "oam:meta"
 	metadataRecord.Properties.Geocatalogo.Schema = "https://api.openaerialmap.org/meta"

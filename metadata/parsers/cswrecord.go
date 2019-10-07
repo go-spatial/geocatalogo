@@ -145,6 +145,8 @@ func ParseCSWRecord(xmlBuffer []byte) (metadata.Record, error) {
 		metadataRecord.Geometry.Coordinates = cswRecord.BoundingBox.BBox()
 	}
 
+	metadataRecord.BoundingBox = metadataRecord.Geometry.Bounds()
+
 	metadataRecord.Properties.Geocatalogo.Schema = "http://www.opengis.net/cat/csw/2.0.2"
 	metadataRecord.Properties.Geocatalogo.Typename = "csw:Record"
 	metadataRecord.Properties.Geocatalogo.Source = "local"

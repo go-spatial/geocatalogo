@@ -90,7 +90,11 @@ func New(cfg config.Config, log *logrus.Logger) error {
 				"properties": {
 					"geometry": {
 						"type": "geo_shape"
-					}
+					},
+                    "collection": {
+                        "type": "text",
+                        "fielddata": true
+                    }
 				}
 			}
 		}

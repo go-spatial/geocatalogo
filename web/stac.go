@@ -71,13 +71,14 @@ type assets struct {
 }
 
 type STACItem struct {
-	Type       string              `json:"type,omitempty"`
-	Id         string              `json:"id,omitempty"`
-	BBox       [4]float64          `json:"bbox,omitempty"`
-	Geometry   metadata.Geometry   `json:"geometry,omitempty"`
-	Properties metadata.Properties `json:"properties,omitempty"`
-	Links      []Link              `json:"links,omitempty"`
-	Assets     []Link              `json:"assets,omitempty"`
+	Type        string              `json:"type,omitempty"`
+	Id          string              `json:"id,omitempty"`
+	StacVersion string              `json:"stac_version"`
+	BBox        [4]float64          `json:"bbox,omitempty"`
+	Geometry    metadata.Geometry   `json:"geometry,omitempty"`
+	Properties  metadata.Properties `json:"properties,omitempty"`
+	Links       []Link              `json:"links,omitempty"`
+	Assets      []Link              `json:"assets,omitempty"`
 }
 
 type STACFeatureCollection struct {
@@ -136,6 +137,11 @@ func STACOpenAPI(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCat
 		cat.Config.Server.MimeType = "text/html"
 		geocatalogo.EmitResponse(cat, w, 200, content)
 	}
+	return
+}
+
+// STACCollections provides STAC compliant collection descriptions
+func STACCollections(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatalogue) {
 	return
 }
 
@@ -281,6 +287,14 @@ func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 		STACOpenAPI(w, r, cat)
 	}).Methods("GET")
 
+	router.HandleFunc("/collections", func(w http.ResponseWriter, r *http.Request) {
+		STACCollections(w, r, cat)
+	}).Methods("GET")
+
+	router.HandleFunc("/collections{collectionId}", func(w http.ResponseWriter, r *http.Request) {
+		STACCollections(w, r, cat)
+	}).Methods("GET")
+
 	router.HandleFunc("/stac/search", func(w http.ResponseWriter, r *http.Request) {
 		STACItems(w, r, cat)
 	}).Methods("GET", "POST")
@@ -302,6 +316,7 @@ func Results2STACFeatureCollection(url string, r *search.Results, s *STACFeature
 		si := STACItem{}
 		si.Type = "Feature"
 		si.Id = rec.Identifier
+		si.StacVersion = "0.8.0"
 		si.BBox = rec.Geometry.Bounds()
 		si.Geometry = rec.Geometry
 		si.Properties = rec.Properties

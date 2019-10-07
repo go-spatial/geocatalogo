@@ -210,7 +210,7 @@ func main() {
 			}
 		}
 		if *timeFlag != "" {
-			for _, t := range strings.Split(*timeFlag, ",") {
+			for _, t := range strings.Split(*timeFlag, "/") {
 				timestep, err := time.Parse(time.RFC3339, t)
 				if err != nil {
 					fmt.Println("time format error (should be ISO 8601/RFC3339)")

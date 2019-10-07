@@ -72,10 +72,13 @@ geocatalogo search --bbox -152,42,-52,84
 geocatalogo search --time 2018-01-19T18:28:02Z
 
 # search by time range
-geocatalogo search --time 2007-11-11T12:43:29Z,2018-01-19T18:28:02Z
+geocatalogo search --time 2007-11-11T12:43:29Z/2018-01-19T18:28:02Z
+
+# search by time range
+geocatalogo search --collections landsat8
 
 # search by any combination exclusively (term, bbox, time)
-geocatalogo search --time 2007-11-11T12:43:29Z,2018-01-19T18:28:02Z --bbox -152,42,-52,84 --term landsat
+geocatalogo search --time 2007-11-11T12:43:29Z/2018-01-19T18:28:02Z --bbox -152,42,-52,84 --term landsat
 
 # get a metadata record by id
 geocatalogo get --id=12345
