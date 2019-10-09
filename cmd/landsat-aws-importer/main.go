@@ -90,6 +90,8 @@ func main() {
 		metadataRecord.Identifier = line[0]
 		metadataRecord.Properties.Title = line[1]
 		metadataRecord.Properties.Abstract = "Landsat 8 scene " + line[1]
+		metadataRecord.Properties.Collection = "landsat8"
+		metadataRecord.Properties.Datetime = &acquisitionDate
 		metadataRecord.Links = append(metadataRecord.Links, metadata.Link{URL: downloadURL})
 		metadataRecord.Links = append(metadataRecord.Links, metadata.Link{URL: metadataURL})
 
@@ -103,6 +105,9 @@ func main() {
 			Path:              path,
 			Row:               row,
 		}
+
+		url_thumb := strings.Replace(line[11], "/index.html", "/"+line[0]+"_thumb_small.jpg", 1)
+		metadataRecord.Assets = append(metadataRecord.Assets, metadata.Link{URL: url_thumb, Name: "thumbnail", Type: "thumbnail"})
 
 		for i := 0; i < 10; i++ {
 			url := fmt.Sprintf("%v_B%d.TIF", strings.Replace(metadataURL, "_MTL.json", "", 1), i)

@@ -100,6 +100,8 @@ type Properties struct {
 	TemporalExtent *Temporal    `json:"temporal_extent,omitempty"`
 	ProductInfo    *ProductInfo `json:"product_info,omitempty"`
 	Geocatalogo    geocatalogo  `json:"_geocatalogo,omitempty"`
+	Datetime       *time.Time   `json:"datetime,omitempty"`
+	Collection     string       `json:"collection,omitempty"`
 }
 
 // Record describes a generic metadata record

@@ -65,10 +65,17 @@ type Link struct {
 	Href  string `json:"href"`
 }
 
-type assets struct {
-	name string `json:"name,omitempty"`
-	href string `json:"href,omitempty"`
+type SearchMetadata struct {
+	Next     string `json:"next"`
+	Returned int    `json:"returned"`
+	Limit    int    `json:"limit,omitempty"`
+	Matched  int    `json:"matched,omitempty"`
 }
+
+//type assets struct {
+//	name string `json:"name,omitempty"`
+//	href string `json:"href,omitempty"`
+//}
 
 type STACItem struct {
 	Type        string              `json:"type,omitempty"`
@@ -78,15 +85,16 @@ type STACItem struct {
 	Geometry    metadata.Geometry   `json:"geometry,omitempty"`
 	Properties  metadata.Properties `json:"properties,omitempty"`
 	Links       []Link              `json:"links,omitempty"`
-	Assets      []Link              `json:"assets,omitempty"`
+	Assets      map[string]Link     `json:"assets,omitempty"`
 }
 
 type STACFeatureCollection struct {
-	Type           string     `json:"type"`
-	Features       []STACItem `json:"features"`
-	Links          []Link     `json:"links"`
-	NumberMatched  int        `json:"numberMatched"`
-	NumberReturned int        `json:"numberReturned"`
+	Type           string         `json:"type"`
+	Features       []STACItem     `json:"features"`
+	Links          []Link         `json:"links"`
+	NumberMatched  int            `json:"numberMatched"`
+	NumberReturned int            `json:"numberReturned"`
+	SearchMetadata SearchMetadata `json:"search:metadata"`
 }
 
 type STACCatalogDefinition struct {
@@ -267,7 +275,7 @@ func STACItems(w http.ResponseWriter, r *http.Request, cat *geocatalogo.GeoCatal
 
 	stacFeatureCollection = STACFeatureCollection{}
 
-	Results2STACFeatureCollection(cat.Config.Server.URL, &results, &stacFeatureCollection)
+	Results2STACFeatureCollection(cat.Config.Server.Limit, cat.Config.Server.URL, &results, &stacFeatureCollection)
 
 	jsonBytes = geocatalogo.Struct2JSON(stacFeatureCollection, cat.Config.Server.PrettyPrint)
 
@@ -297,7 +305,7 @@ func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 
 	router.HandleFunc("/stac/search", func(w http.ResponseWriter, r *http.Request) {
 		STACItems(w, r, cat)
-	}).Methods("GET", "POST")
+	}).Methods("GET", "POST", "OPTIONS")
 
 	router.HandleFunc("/items", func(w http.ResponseWriter, r *http.Request) {
 		STACItems(w, r, cat)
@@ -310,7 +318,7 @@ func STACRouter(cat *geocatalogo.GeoCatalogue) *mux.Router {
 	return router
 }
 
-func Results2STACFeatureCollection(url string, r *search.Results, s *STACFeatureCollection) {
+func Results2STACFeatureCollection(limit int, url string, r *search.Results, s *STACFeatureCollection) {
 	s.Type = "FeatureCollection"
 	for _, rec := range r.Records {
 		si := STACItem{}
@@ -319,14 +327,16 @@ func Results2STACFeatureCollection(url string, r *search.Results, s *STACFeature
 		si.StacVersion = "0.8.0"
 		si.BBox = rec.Geometry.Bounds()
 		si.Geometry = rec.Geometry
+		//si.Datetime = rec.Properties.ProductInfo.AcquisitionDate
+		//si.Collection = rec.Properties.ProductInfo.Collection
 		si.Properties = rec.Properties
 		for _, link := range rec.Links {
 			sil := Link{Rel: "self", Href: link.URL}
 			si.Links = append(si.Links, sil)
 		}
+		si.Assets = make(map[string]Link)
 		for _, asset := range rec.Assets {
-			sila := Link{Rel: "download", Href: asset.URL}
-			si.Assets = append(si.Assets, sila)
+			si.Assets[asset.Name] = Link{Type: asset.Type, Href: asset.URL}
 		}
 		s.Features = append(s.Features, si)
 	}
@@ -335,5 +345,9 @@ func Results2STACFeatureCollection(url string, r *search.Results, s *STACFeature
 	s.Links = append(s.Links, nextLink)
 	s.NumberMatched = r.Matches
 	s.NumberReturned = r.Returned
+	s.SearchMetadata.Next = strconv.Itoa(r.NextRecord)
+	s.SearchMetadata.Limit = limit
+	s.SearchMetadata.Matched = r.Matches
+	s.SearchMetadata.Returned = r.Returned
 	return
 }
