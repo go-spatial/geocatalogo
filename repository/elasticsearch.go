@@ -46,6 +46,7 @@ import (
 )
 
 // Elasticsearch provides an object model for repository.
+// Implements the Repository interface.
 type Elasticsearch struct {
 	Type      string
 	URL       string
